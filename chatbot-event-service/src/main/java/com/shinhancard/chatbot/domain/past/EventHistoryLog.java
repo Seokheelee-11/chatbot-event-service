@@ -1,4 +1,4 @@
-package com.shinhancard.chatbot.domain;
+package com.shinhancard.chatbot.domain.past;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

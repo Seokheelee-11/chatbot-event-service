@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.shinhancard.chatbot.domain.EventInfo.OverLapType;
-import com.shinhancard.chatbot.domain.EventInfo.RewardType;
-import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.past.ResultCode;
+import com.shinhancard.chatbot.domain.past.EventInfo.OverLapType;
+import com.shinhancard.chatbot.domain.past.EventInfo.RewardType;
 
 import lombok.Data;
 

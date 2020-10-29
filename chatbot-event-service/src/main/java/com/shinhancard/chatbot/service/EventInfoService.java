@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.shinhancard.chatbot.controller.request.EventInfoRequest;
 import com.shinhancard.chatbot.controller.response.EventInfoResponse;
-import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.EventInfo.RewardType;
-import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.past.EventInfo;
+import com.shinhancard.chatbot.domain.past.ResultCode;
+import com.shinhancard.chatbot.domain.past.EventInfo.RewardType;
 import com.shinhancard.chatbot.repository.EventInfoRepository;
 
 import lombok.RequiredArgsConstructor;

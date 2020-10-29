@@ -1,4 +1,4 @@
-package com.shinhancard.chatbot.domain;
+package com.shinhancard.chatbot.domain.past;
 
 public enum ResultCode {
 	SUCCESS("00", "성공적으로 신청(저장) 되었습니다."),

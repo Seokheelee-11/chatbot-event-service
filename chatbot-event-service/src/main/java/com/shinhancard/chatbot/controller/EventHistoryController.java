@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shinhancard.chatbot.controller.request.EventHistoryRequest;
 import com.shinhancard.chatbot.controller.response.EventHistoryResponse;
-import com.shinhancard.chatbot.domain.EventHistory;
+import com.shinhancard.chatbot.domain.past.EventHistory;
 import com.shinhancard.chatbot.repository.EventHistoryRepository;
 import com.shinhancard.chatbot.service.EventHistoryService;
 

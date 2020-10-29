@@ -11,10 +11,10 @@ import org.springframework.util.CollectionUtils;
 
 import com.shinhancard.chatbot.controller.request.EventHistoryRequest;
 import com.shinhancard.chatbot.controller.response.EventHistoryResponse;
-import com.shinhancard.chatbot.domain.EventHistory;
-import com.shinhancard.chatbot.domain.EventHistoryLog;
-import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.past.EventHistory;
+import com.shinhancard.chatbot.domain.past.EventHistoryLog;
+import com.shinhancard.chatbot.domain.past.EventInfo;
+import com.shinhancard.chatbot.domain.past.ResultCode;
 import com.shinhancard.chatbot.repository.EventHistoryRepository;
 import com.shinhancard.chatbot.repository.EventInfoRepository;
 

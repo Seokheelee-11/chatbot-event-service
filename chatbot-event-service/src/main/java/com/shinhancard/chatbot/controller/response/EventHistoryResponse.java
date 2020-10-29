@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.past.EventInfo;
+import com.shinhancard.chatbot.domain.past.ResultCode;
 
 import lombok.Data;
 

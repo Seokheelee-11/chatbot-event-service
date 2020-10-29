@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.shinhancard.chatbot.domain.EventHistory;
+import com.shinhancard.chatbot.domain.past.EventHistory;
 
 public interface EventHistoryRepository extends MongoRepository<EventHistory, String>{
 	
