@@ -1,10 +1,12 @@
-package com.shinhancard.chatbot.domain;
+package com.shinhancard.chatbot.entity;
 
 import org.springframework.data.annotation.Id;
 
-import lombok.Data;
+import com.shinhancard.chatbot.domain.PropertyCode;
 
-@Data
+import lombok.Getter;
+
+@Getter
 public class EventType {
 
 	@Id

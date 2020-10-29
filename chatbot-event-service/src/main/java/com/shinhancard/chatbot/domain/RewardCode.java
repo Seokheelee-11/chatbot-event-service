@@ -1,5 +1,7 @@
 package com.shinhancard.chatbot.domain;
 
-public class Default {
+public enum RewardCode {
 
+	FCFS,
+	DRAWROTS;
 }
