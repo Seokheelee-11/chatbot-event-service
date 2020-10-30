@@ -1,4 +1,4 @@
-package com.shinhancard.chatbot.controller.response;
+package com.shinhancard.chatbot.domain.past;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.shinhancard.chatbot.domain.past.EventInfo;
-import com.shinhancard.chatbot.domain.past.ResultCode;
+import com.shinhancard.chatbot.domain.ResultCode;
 
 import lombok.Data;
 

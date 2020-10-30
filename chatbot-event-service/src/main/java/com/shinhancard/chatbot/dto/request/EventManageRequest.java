@@ -1,6 +1,4 @@
-package com.shinhancard.chatbot.entity;
-
-import org.springframework.data.annotation.Id;
+package com.shinhancard.chatbot.dto.request;
 
 import com.shinhancard.chatbot.domain.DefaultInfo;
 import com.shinhancard.chatbot.domain.OverLap;
@@ -13,11 +11,8 @@ import lombok.Data;
 
 
 @Data
-public class EventManage {
+public class EventManageRequest {
 
-	@Id
-	private String id;
-	
 	private String eventType;
 	private String eventId;
 	private DefaultInfo defaultInfo = new DefaultInfo();

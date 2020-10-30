@@ -8,11 +8,10 @@ import lombok.Data;
 
 
 @Data
-public class ApplicationHistory {
+public class EventApplicationLog {
 	private Integer order;
 	private LocalDateTime applyDate;
 	private String channel;
 	private String rewardName;
 	private List<String> comments = new ArrayList<String>();
-	private ResponseInfo responseInfo = new ResponseInfo();
 }

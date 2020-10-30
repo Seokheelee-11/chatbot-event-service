@@ -1,5 +1,5 @@
 
-package com.shinhancard.chatbot.controller.request;
+package com.shinhancard.chatbot.domain.past;
 
 import java.util.ArrayList;
 import java.util.List;

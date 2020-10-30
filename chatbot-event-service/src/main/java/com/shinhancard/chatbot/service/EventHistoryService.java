@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.shinhancard.chatbot.controller.request.EventHistoryRequest;
-import com.shinhancard.chatbot.controller.response.EventHistoryResponse;
+import com.shinhancard.chatbot.domain.ResultCode;
 import com.shinhancard.chatbot.domain.past.EventHistory;
 import com.shinhancard.chatbot.domain.past.EventHistoryLog;
+import com.shinhancard.chatbot.domain.past.EventHistoryRequest;
+import com.shinhancard.chatbot.domain.past.EventHistoryResponse;
 import com.shinhancard.chatbot.domain.past.EventInfo;
-import com.shinhancard.chatbot.domain.past.ResultCode;
 import com.shinhancard.chatbot.repository.EventHistoryRepository;
 import com.shinhancard.chatbot.repository.EventInfoRepository;
 

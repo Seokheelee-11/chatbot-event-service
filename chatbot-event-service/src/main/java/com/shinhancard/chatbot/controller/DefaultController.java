@@ -3,8 +3,8 @@ package com.shinhancard.chatbot.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.shinhancard.chatbot.controller.request.EventHistoryRequest;
-import com.shinhancard.chatbot.controller.response.EventHistoryResponse;
+import com.shinhancard.chatbot.domain.past.EventHistoryRequest;
+import com.shinhancard.chatbot.domain.past.EventHistoryResponse;
 import com.shinhancard.chatbot.service.EventHistoryService;
 
 import lombok.RequiredArgsConstructor;

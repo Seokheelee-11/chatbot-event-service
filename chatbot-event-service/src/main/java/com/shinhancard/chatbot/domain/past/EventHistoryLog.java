@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.springframework.util.CollectionUtils;
 
-import com.shinhancard.chatbot.controller.request.EventHistoryRequest;
-
 import lombok.Data;
 
 @Data

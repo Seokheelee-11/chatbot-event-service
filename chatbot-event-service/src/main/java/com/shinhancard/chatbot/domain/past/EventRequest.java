@@ -1,4 +1,4 @@
-package com.shinhancard.chatbot.controller.request;
+package com.shinhancard.chatbot.domain.past;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
