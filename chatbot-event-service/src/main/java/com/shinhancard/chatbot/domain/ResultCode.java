@@ -25,6 +25,7 @@ public enum ResultCode {
 	private String resultCode;
 	private String resultMessage;
 
+	
 	private ResultCode(String resultCode, String resultMessage) {
 		this.resultCode	= resultCode;
 		this.resultMessage = resultMessage;

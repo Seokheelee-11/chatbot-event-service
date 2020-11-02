@@ -22,7 +22,7 @@ public class EventApplication {
 //	@Size(min=10,max=10,message="고객번호는 10자 이여야 합니다.")
 	private String clnn;
 	
-	private List<EventApplicationLog> applicationHistories = new ArrayList<EventApplicationLog>();
+	private List<EventApplicationLog> applicationLogs = new ArrayList<EventApplicationLog>();
 	
 	public EventApplication() {
 		

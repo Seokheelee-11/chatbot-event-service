@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class Target {
+	private Boolean isProperty;
 	private String targetClnns;
 	private String nonTargetClnns;
 	private List<String> channels = new ArrayList<String>();
