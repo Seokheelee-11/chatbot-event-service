@@ -19,7 +19,8 @@ public enum ResultCode {
 	FAILED_NO_CORRECT_ANSWER("14", "이벤트 정답이 아닙니다."),
 	FAILED_DEFAULT_INPUT("15", "입력 값이 잘못되었음"),
 	FAILED_OVERLAP_VALIDATE("16", "overLap Validation Failed"),
-	FAILED_GET_REWARD("17", "reward를 받을 수 없습니다.");
+	FAILED_GET_REWARD("17", "reward를 받을 수 없습니다."),
+	FAILED("18", "failed");
 	
 	
 	private String resultCode;

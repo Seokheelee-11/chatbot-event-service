@@ -1,5 +1,6 @@
 package com.shinhancard.chatbot.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +15,11 @@ import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
 import com.shinhancard.chatbot.dto.response.EventApplicationResponse;
 import com.shinhancard.chatbot.entity.EventApplication;
 import com.shinhancard.chatbot.entity.EventManage;
+import com.shinhancard.chatbot.entity.EventTarget;
 import com.shinhancard.chatbot.entity.EventType;
 import com.shinhancard.chatbot.repository.EventApplicationRepository;
 import com.shinhancard.chatbot.repository.EventManageRepository;
+import com.shinhancard.chatbot.repository.EventTargetRepository;
 import com.shinhancard.chatbot.repository.EventTypeRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ public class EventApplicationService {
 	private final EventApplicationRepository eventApplicationRepository;
 	private final EventManageRepository eventManageRepository;
 	private final EventTypeRepository eventTypeRepository;
+	private final EventTargetRepository eventTargetRepository;
 
 	public List<EventApplicationResponse> getEvents() {
 		List<EventApplicationResponse> eventApplicationResponses = new ArrayList<EventApplicationResponse>();
@@ -49,27 +53,29 @@ public class EventApplicationService {
 		ResultCode resultCode = ResultCode.SUCCESS;		
 		
 		if (properties.contains(PropertyCode.DEFAULT)) {
-			resultCode = canApplyDate(eventApplicationLog, resultCode);
+			resultCode = canApplyDate(eventManage, eventApplicationLog, resultCode);
 		}
 		
 		if (properties.contains(PropertyCode.TARGET)) {
-			resultCode = canApplyTarget(eventManage, resultCode);
+			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
 		}
-
-		if (properties.contains(PropertyCode.RESPONSE)) {
-
+		
+		if (properties.contains(PropertyCode.QUIZ)) {
+			resultCode = canApplyQuiz(eventManage, eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.OVERLAP)) {
-
+			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode);
+			if(resultCode.isSuccess()) {
+				eventApplicationLog.setOrder(getOrder(eventApplicationRequest));
+			}
 		}
-
-		if (properties.contains(PropertyCode.QUIZ)) {
-
-		}
-
+		
 		if (properties.contains(PropertyCode.REWARD)) {
-
+			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
+			if(resultCode.isSuccess()) {
+				eventApplicationLog.setRewardName(getReward(eventManage));
+			}
 		}
 
 		EventApplication eventApplication = new EventApplication();
@@ -96,10 +102,90 @@ public class EventApplicationService {
 	}
 
 	
-	//TODO :: 함수 만들 것
-	public ResultCode canApplyDate(EventApplicationLog eventApplicationLog, ResultCode resultCode) {
-
+	
+	public ResultCode canApplyDate(EventManage eventManage, EventApplicationLog eventApplicationLog, ResultCode resultCode) {
+		if(resultCode.isSuccess()) {
+			LocalDateTime startDate = eventManage.getDefaultInfo().getStartDate();
+			LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
+			LocalDateTime ApplyDate = eventApplicationLog.getApplyDate();
+			
+			if(startDate.isAfter(ApplyDate) || endDate.isBefore(ApplyDate)) {
+				resultCode = ResultCode.FAILED_DATE_ORDER;
+			}	
+		}
 		return resultCode;
+	}
+	
+	public ResultCode canApplyTarget(EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if(resultCode.isSuccess()) {
+			String targetName = eventManage.getTarget().getTargetName();
+			String nonTargetName = eventManage.getTarget().getNonTargetName();
+			EventTarget target = eventTargetRepository.findOneByName(targetName);
+			EventTarget nonTarget = eventTargetRepository.findOneByName(nonTargetName);
+			List<String> targetClnns = target.getClnns();
+			List<String> nonTargetClnns = nonTarget.getClnns();
+			List<String> channels = eventManage.getTarget().getChannels();
+									
+			if(!targetClnns.contains(eventApplicationRequest.getClnn())){
+				resultCode = ResultCode.FAILED;
+			}
+			if(nonTargetClnns.contains(eventApplicationRequest.getClnn())){
+				resultCode = ResultCode.FAILED;
+			}
+			if(channels.contains(eventApplicationRequest.getChannel())) {
+				resultCode = ResultCode.FAILED;
+			}
+		}
+		return resultCode;
+	}
+	
+	//TODO :: 함수 만들 것
+	public ResultCode canApplyQuiz(EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if(resultCode.isSuccess()) {
+			List<String> comments = eventApplicationRequest.getComments();
+			List<String> answers = eventManage.getQuiz().getAmswers();
+			if(eventManage.getQuiz().getChecksOneAnswer()) {
+				for(String comment : comments ) {
+					if(answers.contains(comment)) {
+						continue;
+					}
+					else {
+						resultCode = ResultCode.FAILED;
+					}
+				}
+			}
+		}
+		return resultCode;
+	}
+	
+	//TODO :: 함수 만들 것
+	public ResultCode canApplyOverLap(EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if(resultCode.isSuccess()) {
+			
+		}
+		return resultCode;
+	}
+	
+	//TODO :: 함수 만들 것
+	public ResultCode canApplyReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if(resultCode.isSuccess()) {
+			
+		}
+		return resultCode;
+	}
+	
+	//TODO :: 함수 만들 것
+	public Integer getOrder(EventApplicationRequest eventApplicationRequest) {
+		Integer result = 0;
+		
+		return result;
+	}
+	
+	//TODO :: 함수 만들 것
+	public String getReward(EventManage eventManage) {
+		String result = "";
+		
+		return result;
 	}
 	
 	

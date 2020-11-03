@@ -1,16 +1,12 @@
-package com.shinhancard.chatbot.entity;
+package com.shinhancard.chatbot.dto.request;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
-
 import lombok.Data;
 
 @Data
-public class EventTarget {
-	@Id
-	private String id;
+public class EventTargetRequest {
 	private String name;
 	private List<String> clnns = new ArrayList<String>();
 }

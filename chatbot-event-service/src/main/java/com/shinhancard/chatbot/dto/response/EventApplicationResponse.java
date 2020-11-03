@@ -1,6 +1,6 @@
 package com.shinhancard.chatbot.dto.response;
 
-import com.shinhancard.chatbot.domain.ApplicationHistory;
+import com.shinhancard.chatbot.domain.EventApplicationLog;
 import com.shinhancard.chatbot.domain.EventInfo;
 import com.shinhancard.chatbot.domain.ResultCode;
 
@@ -15,5 +15,5 @@ public class EventApplicationResponse {
 
 	private String clnn;
 	private EventInfo eventInfo = new EventInfo();
-	private ApplicationHistory applicationHistory = new ApplicationHistory();
+	private EventApplicationLog eventApplicationLog;
 }
