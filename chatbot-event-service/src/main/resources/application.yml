@@ -16,4 +16,18 @@ logging:
   level:
     root: info
 
-    
+---
+
+spring:
+ profiles: peer1
+
+server:
+  port: 8080
+  
+---
+
+spring:
+ profiles: peer2
+
+server:
+  port: 8090
