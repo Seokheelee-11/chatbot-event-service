@@ -75,6 +75,7 @@ public class EventManageService {
 		
 		EventType eventType = eventTypeRepository.findOneByIdAndType(id,type);
 		
+		
 		eventType.setProperties(eventManage);
 		eventTypeRepository.save(eventType);
 		eventManageRepository.save(eventManage);

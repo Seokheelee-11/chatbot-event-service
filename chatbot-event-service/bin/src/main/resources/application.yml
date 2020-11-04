@@ -6,7 +6,12 @@
 #      database: chatbot-3
 #      username: chatbotAdmin
 #      password: bot123!
-      
+     
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+     
 logging:
   level:
     root: info

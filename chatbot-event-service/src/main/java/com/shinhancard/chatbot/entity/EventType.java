@@ -1,6 +1,8 @@
 package com.shinhancard.chatbot.entity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 
@@ -16,8 +18,18 @@ public class EventType {
 
 	private String type;
 	private String Name;
-	private ArrayList<PropertyCode> properties = new ArrayList<PropertyCode>();
+	private List<PropertyCode> properties = new ArrayList<>();
+	private PropertyCode propertyCode;
 	
+	public void setPropertiesArray(PropertyCode[] properties) {
+		this.properties = new ArrayList<>(Arrays.asList(properties));
+	}
+	
+	public PropertyCode[] getPropertiesArray() {
+		return this.properties.toArray(new PropertyCode[properties.size()]);
+	}
+	
+	//TODO :: setProperties를 바꾸자, eventManage의 isProperty 값을 T로 바꿔주는걸로
 	public void setProperties(EventManage eventManage) {
 		if(eventManage.getDefaultInfo().getIsProperty()) {
 			properties.add(PropertyCode.DEFAULT);

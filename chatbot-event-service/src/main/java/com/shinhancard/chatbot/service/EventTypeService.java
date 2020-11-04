@@ -36,6 +36,8 @@ public class EventTypeService {
 	}
 
 	public EventTypeResponse registEvent(EventTypeRequest eventTypeRequest) {
+		
+		
 		EventType eventType = modelMapper.map(eventTypeRequest, EventType.class);
 		eventTypeRepository.save(eventType);
 		EventTypeResponse eventTypeResponse = modelMapper.map(eventType, EventTypeResponse.class);
@@ -60,11 +62,19 @@ public class EventTypeService {
 		return eventType;
 	}
 
+	public EventType mappingEventTypeRequestToEntity(EventTypeRequest eventManageRequest) {
+		
+		EventType eventType = modelMapper.map(eventManageRequest, EventType.class);
+		return eventType;
+	}
+	
 	public EventType mappingEventType(EventTypeRequest eventManageRequest) {
 		EventType eventType = modelMapper.map(eventManageRequest, EventType.class);
 		return eventType;
 	}
 
+
+	
 	public List<EventTypeResponse> mappingEventTypeResponses(List<EventType> eventTypes) {
 		List<EventTypeResponse> eventTypeResponses = new ArrayList<EventTypeResponse>();
 		eventTypes.forEach(eventType -> eventTypeResponses.add(modelMapper.map(eventType, EventTypeResponse.class)));

@@ -143,7 +143,7 @@ public class EventApplicationService {
 	public ResultCode canApplyQuiz(EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		if(resultCode.isSuccess()) {
 			List<String> comments = eventApplicationRequest.getComments();
-			List<String> answers = eventManage.getQuiz().getAmswers();
+			List<String> answers = eventManage.getQuiz().getAnswers();
 			if(eventManage.getQuiz().getChecksOneAnswer()) {
 				for(String comment : comments ) {
 					if(answers.contains(comment)) {
