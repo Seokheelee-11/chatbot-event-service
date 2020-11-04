@@ -18,7 +18,7 @@ public class ModelMapperConfig {
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
 		modelMapper.typeMap(EventTypeRequest.class, EventType.class).addMapping(EventTypeRequest::getPropertiesArray,EventType::setPropertiesArray);
-		modelMapper.typeMap(EventTypeRequest.class, EventType.class).addMapping(EventType::getPropertiesArray,EventTypeResponse::setPropertiesArray);
+		modelMapper.typeMap(EventType.class, EventTypeResponse.class).addMapping(EventType::getPropertiesArray,EventTypeResponse::setPropertiesArray);
 		//modelMapper.typeMap(EventTypeRequest.class, EventType.class).addMapping(EventTypeRequest::getProperties(),EventType::setPropertiesArray);
 
 //		Converter<ArrayList<PropertyCode>, ArrayList<PropertyCode>> propertyCodeConverter = new AbstractConverter<ArrayList<PropertyCode>, ArrayList<PropertyCode>>() {
