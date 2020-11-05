@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 import com.shinhancard.chatbot.dto.request.EventManageRequest;
 import com.shinhancard.chatbot.dto.response.EventManageResponse;
 import com.shinhancard.chatbot.entity.EventManage;
-import com.shinhancard.chatbot.entity.EventType;
 import com.shinhancard.chatbot.repository.EventManageRepository;
-import com.shinhancard.chatbot.repository.EventTypeRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,7 @@ public class EventManageService {
 	@Autowired
 	private ModelMapper modelMapper;
 	private final EventManageRepository eventManageRepository;
-	private final EventTypeRepository eventTypeRepository;
+	
 
 	public List<EventManageResponse> getEvents() {
 		List<EventManageResponse> eventManageResponses = new ArrayList<EventManageResponse>();
@@ -38,7 +36,7 @@ public class EventManageService {
 
 	public EventManageResponse registEvent(EventManageRequest eventManageRequest) {
 		EventManage eventManage = mappingEventManage(eventManageRequest);
-		saveEventManage(eventManage);
+		eventManageRepository.save(eventManage);
 		EventManageResponse eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
 		
 		log.info("saved entity {}", eventManageResponse.toString());
@@ -49,7 +47,7 @@ public class EventManageService {
 	public EventManageResponse updateEvent(String id, EventManageRequest eventManageRequest) {
 
 		EventManage eventManage =  mappingEventManageAndId(eventManageRequest, id);
-		saveEventManage(eventManage);
+		eventManageRepository.save(eventManage);
 		EventManageResponse eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
 		return eventManageResponse;
 	}
@@ -69,16 +67,4 @@ public class EventManageService {
 		return eventManage;
 	}
 	
-	public void saveEventManage(EventManage eventManage){
-		String id = eventManage.getEventType().getId();
-		String type = eventManage.getEventType().getType();
-		
-		EventType eventType = eventTypeRepository.findOneByIdAndType(id,type);
-		
-		
-		eventType.setProperties(eventManage);
-		eventTypeRepository.save(eventType);
-		eventManageRepository.save(eventManage);
-	}
-
 }

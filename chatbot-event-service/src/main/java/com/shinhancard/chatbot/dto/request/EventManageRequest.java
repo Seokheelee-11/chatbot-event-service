@@ -13,7 +13,6 @@ import lombok.Data;
 @Data
 public class EventManageRequest {
 
-	private Type eventType;
 	private String eventId;
 	private DefaultInfo defaultInfo = new DefaultInfo();
 	private Target target = new Target();
@@ -21,12 +20,6 @@ public class EventManageRequest {
 	private OverLap overLap = new OverLap();
 	private Quiz quiz = new Quiz();
 	private Reward reward = new Reward();
-	
-	@Data
-	public class Type{
-		private String id;
-		private String type;
-	}
 	
 
 	

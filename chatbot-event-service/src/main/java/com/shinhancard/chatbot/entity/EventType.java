@@ -29,7 +29,7 @@ public class EventType {
 		return this.properties.toArray(new PropertyCode[properties.size()]);
 	}
 	
-	//TODO :: setProperties를 바꾸자, eventManage의 isProperty 값을 T로 바꿔주는걸로
+	
 	public void setProperties(EventManage eventManage) {
 		if(eventManage.getDefaultInfo().getIsProperty()) {
 			properties.add(PropertyCode.DEFAULT);
