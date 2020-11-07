@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.shinhancard.chatbot.domain.EventApplicationLog;
+import com.shinhancard.chatbot.domain.OverLap;
+import com.shinhancard.chatbot.domain.OverLapCode;
 import com.shinhancard.chatbot.domain.PropertyCode;
 import com.shinhancard.chatbot.domain.ResultCode;
 import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
@@ -51,9 +53,10 @@ public class EventApplicationService {
 
 		if (properties.contains(PropertyCode.DEFAULT)) {
 			resultCode = canApplyDate(eventManage, eventApplicationLog, resultCode);
-		} 
-		
-		//resultCode = properties.contains(PropertyCode.DEFAULT) ? canApplyDate(eventManage, eventApplicationLog, resultCode) : resultCode; 
+		}
+
+		// resultCode = properties.contains(PropertyCode.DEFAULT) ?
+		// canApplyDate(eventManage, eventApplicationLog, resultCode) : resultCode;
 
 		if (properties.contains(PropertyCode.TARGET)) {
 			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
@@ -135,20 +138,17 @@ public class EventApplicationService {
 		return resultCode;
 	}
 
-	// TODO :: 함수 만들 것
 	public ResultCode canApplyQuiz(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
 			ResultCode resultCode) {
 		if (resultCode.isSuccess()) {
 			List<String> comments = eventApplicationRequest.getComments();
 			List<String> answers = eventManage.getQuiz().getAnswers();
 			if (eventManage.getQuiz().getChecksOneAnswer()) {
+				Boolean isCorrect = false;
 				for (String comment : comments) {
-					if (answers.contains(comment)) {
-						continue;
-					} else {
-						resultCode = ResultCode.FAILED;
-					}
+					isCorrect = answers.contains(comment) ? true : isCorrect;
 				}
+				resultCode = isCorrect ? resultCode : ResultCode.FAILED;
 			}
 		}
 		return resultCode;
@@ -158,11 +158,32 @@ public class EventApplicationService {
 	public ResultCode canApplyOverLap(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
 			ResultCode resultCode) {
 		if (resultCode.isSuccess()) {
-
+			
+			OverLap overLap = eventManage.getOverLap();
+			Integer limit = eventManage.getOverLap().getLimit();
+			Integer interval = eventManage.getOverLap().getInterval();
+			OverLapCode type = eventManage.getOverLap().getType();
+			String clnn = eventApplicationRequest.getClnn();
+			String eventId = eventApplicationRequest.getEventId();
+			
+			EventApplication findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
+			
+			Boolean canApply = true;
+			if(findEventApplication != null) {
+				canApply = limit < findEventApplication.getLastOrder() ? false : canApply; 
+				
+				
+			}
+			
+			
+			
 		}
 		return resultCode;
 	}
 
+	
+	
+	
 	// TODO :: 함수 만들 것
 	public ResultCode canApplyReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
 			ResultCode resultCode) {

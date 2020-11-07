@@ -9,5 +9,5 @@ public class OverLap {
 	private Integer interval;
 	private Integer limit;
 	private Boolean isContinuous;
-	private Boolean includesPreviousDate;
+	private Boolean isStartPastDate;
 }

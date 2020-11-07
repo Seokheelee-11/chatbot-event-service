@@ -27,4 +27,8 @@ public class EventApplication {
 	public EventApplication() {
 		
 	}
+	
+	public Integer getLastOrder() {
+		return this.applicationLogs.size();
+	}
 }
