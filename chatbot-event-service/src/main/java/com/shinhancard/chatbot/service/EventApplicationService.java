@@ -1,6 +1,7 @@
 package com.shinhancard.chatbot.service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,9 +56,6 @@ public class EventApplicationService {
 			resultCode = canApplyDate(eventManage, eventApplicationLog, resultCode);
 		}
 
-		// resultCode = properties.contains(PropertyCode.DEFAULT) ?
-		// canApplyDate(eventManage, eventApplicationLog, resultCode) : resultCode;
-
 		if (properties.contains(PropertyCode.TARGET)) {
 			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
 		}
@@ -67,7 +65,7 @@ public class EventApplicationService {
 		}
 
 		if (properties.contains(PropertyCode.OVERLAP)) {
-			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode);
+			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
 			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
 		}
 
@@ -154,34 +152,161 @@ public class EventApplicationService {
 		return resultCode;
 	}
 
-	// TODO :: 함수 만들 것
 	public ResultCode canApplyOverLap(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
-			ResultCode resultCode) {
+			ResultCode resultCode, EventApplicationLog eventApplicationLog) {
+
+		Boolean canApply = true;
 		if (resultCode.isSuccess()) {
-			
+
 			OverLap overLap = eventManage.getOverLap();
-			Integer limit = eventManage.getOverLap().getLimit();
-			Integer interval = eventManage.getOverLap().getInterval();
-			OverLapCode type = eventManage.getOverLap().getType();
 			String clnn = eventApplicationRequest.getClnn();
 			String eventId = eventApplicationRequest.getEventId();
-			
+
 			EventApplication findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
-			
-			Boolean canApply = true;
-			if(findEventApplication != null) {
-				canApply = limit < findEventApplication.getLastOrder() ? false : canApply; 
-				
-				
+
+			if (findEventApplication != null) {
+				LocalDateTime lastApplyDate = findEventApplication.getLastApplyDate();
+
+				canApply = overLap.getLimit() <= findEventApplication.getLastOrder() + 1 ? false : canApply;
+				canApply = overLap.getIsStartPastDate()
+						? canNoIncludeOverLap(overLap, eventApplicationLog, lastApplyDate)
+						: canIncludeOverLap(overLap, eventApplicationLog, lastApplyDate);
+
 			}
-			
-			
-			
+
 		}
-		return resultCode;
+		return canApply == true ? resultCode : ResultCode.FAILED;
 	}
 
+	public Boolean canNoIncludeOverLap(OverLap overLap, EventApplicationLog eventApplicationLog,
+			LocalDateTime lastApplyDate) {
+		OverLapCode overLapType = overLap.getType();
+		LocalDateTime applyDate = eventApplicationLog.getApplyDate();
+		Boolean result = true;
+		
+		if (overLap.getMaxInterval() != null) {
+			result = result ? canApply_NoIncludeOverLap_MaxInterval(overLapType, applyDate,lastApplyDate, overLap.getMaxInterval()) : result;
+		}
+		if (overLap.getMinInterval() != null) {
+			result = result ? canApply_NoIncludeOverLap_MinInterval(overLapType, applyDate,lastApplyDate, overLap.getMinInterval()) : result;
+		}
+		return result;
+	}
 	
+	
+	public Boolean canIncludeOverLap(OverLap overLap, EventApplicationLog eventApplicationLog,
+			LocalDateTime lastApplyDate) {
+		OverLapCode overLapType = overLap.getType();
+		LocalDateTime applyDate = eventApplicationLog.getApplyDate();
+		Boolean result = true;
+		
+		if (overLap.getMaxInterval() != null) {
+			result = result ? canApply_IncludeOverLap_MaxInterval(overLapType, applyDate,lastApplyDate, overLap.getMaxInterval()) : result;
+		}
+		if (overLap.getMinInterval() != null) {
+			result = result ? canApply_IncludeOverLap_MinInterval(overLapType, applyDate,lastApplyDate, overLap.getMinInterval()) : result;
+		}
+
+		return result;
+	}
+
+	public Boolean canApply_NoIncludeOverLap_MaxInterval(OverLapCode overLapType, LocalDateTime applyDate,
+			LocalDateTime lastApplyDate, Integer interval) {
+		if (overLapType.isMinute() && applyDate.isBefore(lastApplyDate.plusMinutes(interval))) {
+			return false;
+		} else if (overLapType.isHour() && applyDate.isBefore(lastApplyDate.plusHours(interval))) {
+			return false;
+		} else if (overLapType.isDay() && applyDate.isBefore(lastApplyDate.plusDays(interval))) {
+			return false;
+		} else if (overLapType.isMonth() && applyDate.isBefore(lastApplyDate.plusMonths(interval))) {
+			return false;
+		} else if (overLapType.isYear() && applyDate.isBefore(lastApplyDate.plusYears(interval))) {
+			return false;
+		}
+		return true;
+	}
+
+	public Boolean canApply_NoIncludeOverLap_MinInterval(OverLapCode overLapType, LocalDateTime applyDate,
+			LocalDateTime lastApplyDate, Integer interval) {
+		if (overLapType.isMinute() && applyDate.isAfter(lastApplyDate.plusMinutes(interval))) {
+			return false;
+		} else if (overLapType.isHour() && applyDate.isAfter(lastApplyDate.plusHours(interval))) {
+			return false;
+		} else if (overLapType.isDay() && applyDate.isAfter(lastApplyDate.plusDays(interval))) {
+			return false;
+		} else if (overLapType.isMonth() && applyDate.isAfter(lastApplyDate.plusMonths(interval))) {
+			return false;
+		} else if (overLapType.isYear() && applyDate.isAfter(lastApplyDate.plusYears(interval))) {
+			return false;
+		}
+		return true;
+	}
+	
+
+	
+	public Boolean canApply_IncludeOverLap_MaxInterval(OverLapCode overLapType, LocalDateTime applyDate,
+			LocalDateTime lastApplyDate, Integer interval) {
+		if (overLapType.isMinute() && ChronoUnit.MINUTES.between(getWithMinute(lastApplyDate),
+				getWithMinute(applyDate)) < interval) {
+			return false;
+		} else if (overLapType.isHour() && ChronoUnit.HOURS.between(getWithHour(lastApplyDate),
+				getWithHour(applyDate)) < interval) {
+			return false;
+		} else if (overLapType.isDay() && ChronoUnit.DAYS.between(getWithDay(lastApplyDate),
+				getWithDay(applyDate)) < interval) {
+			return false;
+		} else if (overLapType.isMonth() && ChronoUnit.MONTHS.between(getWithMonth(lastApplyDate),
+				getWithMonth(applyDate)) < interval) {
+			return false;
+		} else if (overLapType.isYear() && ChronoUnit.YEARS.between(getWithYear(lastApplyDate),
+				getWithYear(applyDate)) < interval) {
+			return false;
+		}
+		return true;
+	}
+	
+	public Boolean canApply_IncludeOverLap_MinInterval(OverLapCode overLapType, LocalDateTime applyDate,
+			LocalDateTime lastApplyDate, Integer interval) {
+		if (overLapType.isMinute() && ChronoUnit.MINUTES.between(getWithMinute(lastApplyDate),
+				getWithMinute(applyDate)) > interval) {
+			return false;
+		} else if (overLapType.isHour() && ChronoUnit.HOURS.between(getWithHour(lastApplyDate),
+				getWithHour(applyDate)) > interval) {
+			return false;
+		} else if (overLapType.isDay() && ChronoUnit.DAYS.between(getWithDay(lastApplyDate),
+				getWithDay(applyDate)) > interval) {
+			return false;
+		} else if (overLapType.isMonth() && ChronoUnit.MONTHS.between(getWithMonth(lastApplyDate),
+				getWithMonth(applyDate)) > interval) {
+			return false;
+		} else if (overLapType.isYear() && ChronoUnit.YEARS.between(getWithYear(lastApplyDate),
+				getWithYear(applyDate)) > interval) {
+			return false;
+		}
+		return true;
+	}
+	
+	
+	public LocalDateTime getWithMinute(LocalDateTime localDateTime) {
+		return localDateTime.withSecond(0).withNano(0);
+	}
+
+	public LocalDateTime getWithHour(LocalDateTime localDateTime) {
+		return localDateTime.withMinute(0).withSecond(0).withNano(0);
+	}
+
+	public LocalDateTime getWithDay(LocalDateTime localDateTime) {
+		return localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0);
+	}
+
+	public LocalDateTime getWithMonth(LocalDateTime localDateTime) {
+		return localDateTime.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+	}
+
+	public LocalDateTime getWithYear(LocalDateTime localDateTime) {
+		return localDateTime.withDayOfYear(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+	}
+
 	
 	
 	// TODO :: 함수 만들 것
@@ -197,7 +322,11 @@ public class EventApplicationService {
 	public Integer getOverLapOrder(EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		Integer result = 0;
 		if (resultCode.isSuccess()) {
+			String clnn = eventApplicationRequest.getClnn();
+			String eventId = eventApplicationRequest.getEventId();
 
+			EventApplication findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
+			result = findEventApplication.getLastOrder() + 1;
 		}
 		return result;
 	}

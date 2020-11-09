@@ -6,7 +6,8 @@ import lombok.Data;
 public class OverLap {
 	private Boolean isProperty;
 	private OverLapCode type;
-	private Integer interval;
+	private Integer minInterval;
+	private Integer maxInterval;
 	private Integer limit;
 	private Boolean isContinuous;
 	private Boolean isStartPastDate;

@@ -1,5 +1,6 @@
 package com.shinhancard.chatbot.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +31,9 @@ public class EventApplication {
 	
 	public Integer getLastOrder() {
 		return this.applicationLogs.size();
+	}
+	
+	public LocalDateTime getLastApplyDate() {
+		return this.applicationLogs.get(this.getLastOrder()).getApplyDate();
 	}
 }
