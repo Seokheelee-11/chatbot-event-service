@@ -14,6 +14,8 @@ import com.shinhancard.chatbot.domain.OverLap;
 import com.shinhancard.chatbot.domain.OverLapCode;
 import com.shinhancard.chatbot.domain.PropertyCode;
 import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.Reward;
+import com.shinhancard.chatbot.domain.RewardCode;
 import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
 import com.shinhancard.chatbot.dto.response.EventApplicationResponse;
 import com.shinhancard.chatbot.entity.EventApplication;
@@ -70,8 +72,8 @@ public class EventApplicationService {
 		}
 
 		if (properties.contains(PropertyCode.REWARD)) {
-			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
-			eventApplicationLog.setRewardName(getReward(eventManage, resultCode));
+			eventApplicationLog.setRewardName(getReward(eventManage,eventApplicationRequest, resultCode));
+			
 
 		}
 
@@ -307,18 +309,7 @@ public class EventApplicationService {
 		return localDateTime.withDayOfYear(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 	}
 
-	
-	
-	// TODO :: 함수 만들 것
-	public ResultCode canApplyReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
-			ResultCode resultCode) {
-		if (resultCode.isSuccess()) {
 
-		}
-		return resultCode;
-	}
-
-	// TODO :: 함수 만들 것
 	public Integer getOverLapOrder(EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		Integer result = 0;
 		if (resultCode.isSuccess()) {
@@ -330,12 +321,31 @@ public class EventApplicationService {
 		}
 		return result;
 	}
+	
+	
+	// TODO :: 함수 만들 것
+	public ResultCode canApplyReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
+			ResultCode resultCode) {
+		if (resultCode.isSuccess()) {
+			
+		}
+		return resultCode;
+	}
+
 
 	// TODO :: 함수 만들 것
-	public String getReward(EventManage eventManage, ResultCode resultCode) {
+	public String getReward(EventManage eventManage,EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		String result = "";
+		Reward reward = eventManage.getReward();
 		if (resultCode.isSuccess()) {
-
+			
+			
+			if(reward.getType().equals(RewardCode.FCFS)) {
+				
+			}
+			else if(reward.getType().equals(RewardCode.DRAWROTS)) {
+				
+			}			
 		}
 		return result;
 	}
