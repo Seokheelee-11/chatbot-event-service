@@ -36,4 +36,19 @@ public class EventApplication {
 	public LocalDateTime getLastApplyDate() {
 		return this.applicationLogs.get(this.getLastOrder()).getApplyDate();
 	}
+	
+	public Integer getRewardAppliedNumber(String rewardName) {
+		Integer totalNumber = 0;
+		for(EventApplicationLog applicationLog : this.applicationLogs) {
+			if(applicationLog.getRewardName().equals(rewardName)){
+				totalNumber++;
+			}
+		}
+		return totalNumber;
+	}
+	
+	public void addApplicationLogs(EventApplicationLog eventApplicationLog) {
+		this.applicationLogs.add(eventApplicationLog);
+	}
+	
 }

@@ -11,10 +11,22 @@ public class Reward {
 	private ArrayList<RewardInfo> infoes = new ArrayList<RewardInfo>();
 	
 	public Integer getTotalLimit() {
-		Integer totalLimit;
-		
-		this.infoes.forEach(action);
-		
+		Integer totalLimit=0;
+		for(RewardInfo info : this.infoes) {
+			totalLimit += info.getLimit();
+		}
+		return totalLimit;
 	}
+	public RewardInfo getInfoByRewardName(String rewardName) {
+		RewardInfo resultRewardInfo = new RewardInfo();
+		for(RewardInfo rewardInfo : this.infoes) {
+			if(rewardInfo.getName().equals(rewardName)) {
+				resultRewardInfo = rewardInfo;
+				break;
+			}
+		}
+		return resultRewardInfo;
+	}
+	
 	
 }

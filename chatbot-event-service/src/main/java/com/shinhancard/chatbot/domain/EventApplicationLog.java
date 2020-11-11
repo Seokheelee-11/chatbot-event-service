@@ -23,4 +23,6 @@ public class EventApplicationLog {
 		this.channel = eventApplicationRequest.getChannel();
 		this.comments = eventApplicationRequest.getComments();
 	}
+	public EventApplicationLog() {
+	}
 }
