@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class DefaultInfo {
-	private Boolean isProperty;
+//	private Boolean isProperty;
 	private String name;
 	private LocalDateTime startDate;
 	private LocalDateTime endDate;

@@ -30,26 +30,4 @@ public class EventType {
 	}
 	
 	
-	public void setProperties(EventManage eventManage) {
-		if(eventManage.getDefaultInfo().getIsProperty()) {
-			properties.add(PropertyCode.DEFAULT);
-		}
-		if(eventManage.getTarget().getIsProperty()) {
-			properties.add(PropertyCode.TARGET);
-		}
-		if(eventManage.getResponse().getIsProperty()) {
-			properties.add(PropertyCode.RESPONSE);
-		}
-		if(eventManage.getOverLap().getIsProperty()) {
-			properties.add(PropertyCode.OVERLAP);
-		}
-		if(eventManage.getQuiz().getIsProperty()) {
-			properties.add(PropertyCode.QUIZ);
-		}
-		if(eventManage.getReward().getIsProperty()) {
-			properties.add(PropertyCode.REWARD);
-		}
-	}	
-	
-
 }

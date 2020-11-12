@@ -57,45 +57,52 @@ public class EventApplicationService {
 	}
 
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest) {
-		EventManage eventManage = findEventManageByEventApplicationRequest(eventApplicationRequest);
+		EventManage eventManage = findEventManageByEventId(eventApplicationRequest);
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
-		List<PropertyCode> properties = eventManage.getProperties();
+		List<PropertyCode> properties = new ArrayList<PropertyCode>();
 		ResultCode resultCode = ResultCode.SUCCESS;
 
-		if (properties.contains(PropertyCode.DEFAULT)) {
+		if (eventManage == null) {
+			resultCode = ResultCode.FAILED;
+		} else {
+			properties = eventManage.getProperties();
 			resultCode = canApplyDate(eventManage, eventApplicationLog, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.TARGET)) {
+			log.info("target");
 			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.QUIZ)) {
+			log.info("quiz");
 			resultCode = canApplyQuiz(eventManage, eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.OVERLAP)) {
+			log.info("overlap");
 			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
 			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
+		} else {
+			log.info("not overlap");
+			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.REWARD)) {
+			log.info("reward");
 			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
 			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
 
 		}
 
-		EventApplication eventApplication = saveEventApplication(eventManage, eventApplicationLog, eventApplicationRequest, resultCode);
-		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage, eventApplicationLog, resultCode, eventApplication);
-		
+		log.info("save");
+		EventApplication eventApplication = saveEventApplication(eventManage, eventApplicationLog,
+				eventApplicationRequest, resultCode);
+		log.info("response Mapping");
+		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage,
+				eventApplicationLog, resultCode, eventApplication);
+
 		return eventApplicationResponse;
-		
-//		saveEventApplication(eventManage, eventApplicationLog, eventApplicationRequest, resultCode);
-//		EventApplication eventApplication = new EventApplication();
-//		eventApplicationRepository.save(eventApplication);
-//		EventApplicationResponse eventApplicationResponse = modelMapper.map(eventApplication,
-//				EventApplicationResponse.class);
-//		log.info("saved entity {}", eventApplicationResponse.toString());
 	}
 
 	public EventApplicationResponse updateEvent(String id, EventApplicationRequest eventApplicationRequest) {
@@ -111,41 +118,44 @@ public class EventApplicationService {
 
 	}
 
-	// TODO :: 함수 만들 것
 	public EventApplication saveEventApplication(EventManage eventManage, EventApplicationLog eventApplicationLog,
 			EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		String eventId = eventApplicationRequest.getEventId();
 		String clnn = eventApplicationRequest.getClnn();
 
 		EventApplication eventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
-		if(eventApplication == null) {
+		if (eventApplication == null) {
 			eventApplication = new EventApplication();
 			eventApplication.setClnn(clnn);
 			eventApplication.setEventId(eventId);
-		}		
+		}
 		eventApplication.addApplicationLogs(eventApplicationLog);
-		eventApplicationRepository.save(eventApplication);
-		
-		 return eventApplication;
+
+		if (resultCode.isSuccess()) {
+			eventApplicationRepository.save(eventApplication);
+		}
+
+		return eventApplication;
 	}
 
-	public EventApplicationResponse setEventApplicationResponse(EventManage eventManage, EventApplicationLog eventApplicationLog,
-			ResultCode resultCode, EventApplication eventApplication) {
+	public EventApplicationResponse setEventApplicationResponse(EventManage eventManage,
+			EventApplicationLog eventApplicationLog, ResultCode resultCode, EventApplication eventApplication) {
 		EventApplicationResponse eventApplicationResponse = new EventApplicationResponse();
 
 		eventApplicationResponse.setResultCodeAndMessage(resultCode);
-		eventApplicationResponse.setClnn(eventApplication.getClnn());
-		eventApplicationResponse.setEventInfo(setEventInfo(eventManage));
-		eventApplicationResponse.setEventApplicationLog(eventApplicationLog);
-		eventApplicationResponse.setResponseInfo(setResponseInfo(eventManage, eventApplicationLog, resultCode));
-			
+		if (resultCode.isSuccess()) {
+			eventApplicationResponse.setClnn(eventApplication.getClnn());
+			eventApplicationResponse.setEventInfo(setEventInfo(eventManage));
+			eventApplicationResponse.setEventApplicationLog(eventApplicationLog);
+			eventApplicationResponse.setResponseInfo(setResponseInfo(eventManage, eventApplicationLog, resultCode));
+		}
 		return eventApplicationResponse;
 	}
 
 	public ResponseInfo setResponseInfo(EventManage eventManage, EventApplicationLog eventApplicationLog,
 			ResultCode resultCode) {
 		ResponseInfo responseInfo = new ResponseInfo();
-		
+
 		if (resultCode.isSuccess()) {
 			if (eventManage.getReward().getIsProperty()) {
 				String rewardName = eventApplicationLog.getRewardName();
@@ -180,6 +190,7 @@ public class EventApplicationService {
 	public ResultCode canApplyDate(EventManage eventManage, EventApplicationLog eventApplicationLog,
 			ResultCode resultCode) {
 		if (resultCode.isSuccess()) {
+
 			LocalDateTime startDate = eventManage.getDefaultInfo().getStartDate();
 			LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
 			LocalDateTime ApplyDate = eventApplicationLog.getApplyDate();
@@ -246,15 +257,33 @@ public class EventApplicationService {
 			if (findEventApplication != null) {
 				LocalDateTime lastApplyDate = findEventApplication.getLastApplyDate();
 
-				canApply = overLap.getLimit() <= findEventApplication.getLastOrder() + 1 ? false : canApply;
-				canApply = overLap.getIsStartPastDate()
-						? canNoIncludeOverLap(overLap, eventApplicationLog, lastApplyDate)
-						: canIncludeOverLap(overLap, eventApplicationLog, lastApplyDate);
+				if (overLap.getHasLimit()) {
+					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
+				}
+				if (canApply) {
+					canApply = overLap.getIsStartPastDate()
+							? canNoIncludeOverLap(overLap, eventApplicationLog, lastApplyDate)
+							: canIncludeOverLap(overLap, eventApplicationLog, lastApplyDate);
+				}
 
 			}
 
 		}
 		return canApply == true ? resultCode : ResultCode.FAILED;
+	}
+
+	public ResultCode canApplyNotOverLap(EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if (resultCode.isSuccess()) {
+			String clnn = eventApplicationRequest.getClnn();
+			String eventId = eventApplicationRequest.getEventId();
+
+			EventApplication findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
+
+			if (findEventApplication != null) {
+				resultCode = ResultCode.FAILED_ALREADY_APPLIED;
+			}
+		}
+		return resultCode;
 	}
 
 	public Boolean canNoIncludeOverLap(OverLap overLap, EventApplicationLog eventApplicationLog,
@@ -395,13 +424,15 @@ public class EventApplicationService {
 	}
 
 	public Integer getOverLapOrder(EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
-		Integer result = 0;
+		Integer result = 1;
 		if (resultCode.isSuccess()) {
 			String clnn = eventApplicationRequest.getClnn();
 			String eventId = eventApplicationRequest.getEventId();
 
 			EventApplication findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
-			result = findEventApplication.getLastOrder() + 1;
+			if (findEventApplication != null) {
+				result = findEventApplication.getLastOrder() + 1;
+			}
 		}
 		return result;
 	}
@@ -546,7 +577,7 @@ public class EventApplicationService {
 		return appliedRewardLimit;
 	}
 
-	public EventManage findEventManageByEventApplicationRequest(EventApplicationRequest eventApplicationRequest) {
+	public EventManage findEventManageByEventId(EventApplicationRequest eventApplicationRequest) {
 		String eventId = eventApplicationRequest.getEventId();
 		EventManage eventManage = eventManageRepository.findOneByEventId(eventId);
 		return eventManage;

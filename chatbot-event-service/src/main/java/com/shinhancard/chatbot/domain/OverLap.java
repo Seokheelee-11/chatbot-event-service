@@ -8,7 +8,10 @@ public class OverLap {
 	private OverLapCode type;
 	private Integer minInterval;
 	private Integer maxInterval;
+	
+	private Boolean hasLimit;
 	private Integer limit;
-	private Boolean isContinuous;
+	
+	//private Boolean isContinuous;
 	private Boolean isStartPastDate;
 }

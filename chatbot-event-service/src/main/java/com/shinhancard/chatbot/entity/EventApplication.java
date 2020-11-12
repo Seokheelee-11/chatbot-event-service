@@ -34,7 +34,7 @@ public class EventApplication {
 	}
 	
 	public LocalDateTime getLastApplyDate() {
-		return this.applicationLogs.get(this.getLastOrder()).getApplyDate();
+		return this.applicationLogs.get(this.getLastOrder()-1).getApplyDate();
 	}
 	
 	public Integer getRewardAppliedNumber(String rewardName) {
