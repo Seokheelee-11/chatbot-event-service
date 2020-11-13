@@ -47,7 +47,11 @@ public class EventApplicationService {
 	private final EventTargetRepository eventTargetRepository;
 
 	public List<EventApplicationResponse> getEvents() {
+		List<EventApplication> eventApplications = eventApplicationRepository.findAll(); 
 		List<EventApplicationResponse> eventApplicationResponses = new ArrayList<EventApplicationResponse>();
+		for(EventApplication eventApplication : eventApplications) {
+			eventApplicationResponses.add(modelMapper.map(eventApplication, EventApplicationResponse.class));	
+		}	
 		return eventApplicationResponses;
 	}
 
@@ -115,7 +119,7 @@ public class EventApplicationService {
 	}
 
 	public void deleteEvent(String id) {
-
+		eventApplicationRepository.deleteById(id);
 	}
 
 	public EventApplication saveEventApplication(EventManage eventManage, EventApplicationLog eventApplicationLog,
@@ -207,38 +211,53 @@ public class EventApplicationService {
 		if (resultCode.isSuccess()) {
 			String targetName = eventManage.getTarget().getTargetName();
 			String nonTargetName = eventManage.getTarget().getNonTargetName();
-			EventTarget target = eventTargetRepository.findOneByName(targetName);
-			EventTarget nonTarget = eventTargetRepository.findOneByName(nonTargetName);
-			List<String> targetClnns = target.getClnns();
-			List<String> nonTargetClnns = nonTarget.getClnns();
-			List<String> channels = eventManage.getTarget().getChannels();
 
-			if (!targetClnns.contains(eventApplicationRequest.getClnn())) {
+			EventTarget target = eventTargetRepository.findOneByName(targetName);
+			if (target != null) {
+				List<String> targetClnns = target.getClnns();
+				if (targetClnns.contains(eventApplicationRequest.getClnn())) {}
+				else {
+					resultCode = ResultCode.FAILED;
+				}
+			}
+
+			EventTarget nonTarget = eventTargetRepository.findOneByName(nonTargetName);
+			if (nonTarget != null) {
+				List<String> nonTargetClnns = nonTarget.getClnns();
+				if (nonTargetClnns.contains(eventApplicationRequest.getClnn())) {
+					resultCode = ResultCode.FAILED;
+				}
+			}
+
+			List<String> channels = eventManage.getTarget().getChannels();
+			if (channels.isEmpty() || channels.contains(eventApplicationRequest.getChannel())) {}
+			else {
 				resultCode = ResultCode.FAILED;
 			}
-			if (nonTargetClnns.contains(eventApplicationRequest.getClnn())) {
-				resultCode = ResultCode.FAILED;
-			}
-			if (channels.contains(eventApplicationRequest.getChannel())) {
-				resultCode = ResultCode.FAILED;
-			}
+
 		}
 		return resultCode;
 	}
 
 	public ResultCode canApplyQuiz(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
 			ResultCode resultCode) {
+
 		if (resultCode.isSuccess()) {
 			List<String> comments = eventApplicationRequest.getComments();
 			List<String> answers = eventManage.getQuiz().getAnswers();
+			Boolean isCorrect = false;
 			if (eventManage.getQuiz().getChecksOneAnswer()) {
-				Boolean isCorrect = false;
-				for (String comment : comments) {
-					isCorrect = answers.contains(comment) ? true : isCorrect;
+				for (String answer : answers) {
+					isCorrect = comments.contains(answer) ? true : isCorrect;
 				}
-				resultCode = isCorrect ? resultCode : ResultCode.FAILED;
+			} else {
+				if (comments.equals(answers)) {
+					isCorrect = true;
+				}
 			}
+			resultCode = isCorrect ? resultCode : ResultCode.FAILED;
 		}
+
 		return resultCode;
 	}
 
@@ -292,13 +311,13 @@ public class EventApplicationService {
 		LocalDateTime applyDate = eventApplicationLog.getApplyDate();
 		Boolean result = true;
 
-		if (overLap.getMaxInterval() != null) {
+		if (overLap.getMaxInterval() != 0) {
 			result = result
 					? canApply_NoIncludeOverLap_MaxInterval(overLapType, applyDate, lastApplyDate,
 							overLap.getMaxInterval())
 					: result;
 		}
-		if (overLap.getMinInterval() != null) {
+		if (overLap.getMinInterval() != 0) {
 			result = result
 					? canApply_NoIncludeOverLap_MinInterval(overLapType, applyDate, lastApplyDate,
 							overLap.getMinInterval())
@@ -313,13 +332,13 @@ public class EventApplicationService {
 		LocalDateTime applyDate = eventApplicationLog.getApplyDate();
 		Boolean result = true;
 
-		if (overLap.getMaxInterval() != null) {
+		if (overLap.getMaxInterval() != 0) {
 			result = result
 					? canApply_IncludeOverLap_MaxInterval(overLapType, applyDate, lastApplyDate,
 							overLap.getMaxInterval())
 					: result;
 		}
-		if (overLap.getMinInterval() != null) {
+		if (overLap.getMinInterval() != 0) {
 			result = result
 					? canApply_IncludeOverLap_MinInterval(overLapType, applyDate, lastApplyDate,
 							overLap.getMinInterval())
@@ -332,75 +351,75 @@ public class EventApplicationService {
 	public Boolean canApply_NoIncludeOverLap_MaxInterval(OverLapCode overLapType, LocalDateTime applyDate,
 			LocalDateTime lastApplyDate, Integer interval) {
 		if (overLapType.isMinute() && applyDate.isBefore(lastApplyDate.plusMinutes(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isHour() && applyDate.isBefore(lastApplyDate.plusHours(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isDay() && applyDate.isBefore(lastApplyDate.plusDays(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isMonth() && applyDate.isBefore(lastApplyDate.plusMonths(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isYear() && applyDate.isBefore(lastApplyDate.plusYears(interval))) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public Boolean canApply_NoIncludeOverLap_MinInterval(OverLapCode overLapType, LocalDateTime applyDate,
 			LocalDateTime lastApplyDate, Integer interval) {
 		if (overLapType.isMinute() && applyDate.isAfter(lastApplyDate.plusMinutes(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isHour() && applyDate.isAfter(lastApplyDate.plusHours(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isDay() && applyDate.isAfter(lastApplyDate.plusDays(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isMonth() && applyDate.isAfter(lastApplyDate.plusMonths(interval))) {
-			return false;
+			return true;
 		} else if (overLapType.isYear() && applyDate.isAfter(lastApplyDate.plusYears(interval))) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public Boolean canApply_IncludeOverLap_MaxInterval(OverLapCode overLapType, LocalDateTime applyDate,
 			LocalDateTime lastApplyDate, Integer interval) {
 		if (overLapType.isMinute()
-				&& ChronoUnit.MINUTES.between(getWithMinute(lastApplyDate), getWithMinute(applyDate)) < interval) {
-			return false;
+				&& ChronoUnit.MINUTES.between(getWithMinute(lastApplyDate), getWithMinute(applyDate)) <= interval) {
+			return true;
 		} else if (overLapType.isHour()
-				&& ChronoUnit.HOURS.between(getWithHour(lastApplyDate), getWithHour(applyDate)) < interval) {
-			return false;
+				&& ChronoUnit.HOURS.between(getWithHour(lastApplyDate), getWithHour(applyDate)) <= interval) {
+			return true;
 		} else if (overLapType.isDay()
-				&& ChronoUnit.DAYS.between(getWithDay(lastApplyDate), getWithDay(applyDate)) < interval) {
-			return false;
+				&& ChronoUnit.DAYS.between(getWithDay(lastApplyDate), getWithDay(applyDate)) <= interval) {
+			return true;
 		} else if (overLapType.isMonth()
-				&& ChronoUnit.MONTHS.between(getWithMonth(lastApplyDate), getWithMonth(applyDate)) < interval) {
-			return false;
+				&& ChronoUnit.MONTHS.between(getWithMonth(lastApplyDate), getWithMonth(applyDate)) <= interval) {
+			return true;
 		} else if (overLapType.isYear()
-				&& ChronoUnit.YEARS.between(getWithYear(lastApplyDate), getWithYear(applyDate)) < interval) {
-			return false;
+				&& ChronoUnit.YEARS.between(getWithYear(lastApplyDate), getWithYear(applyDate)) <= interval) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public Boolean canApply_IncludeOverLap_MinInterval(OverLapCode overLapType, LocalDateTime applyDate,
 			LocalDateTime lastApplyDate, Integer interval) {
 		if (overLapType.isMinute()
-				&& ChronoUnit.MINUTES.between(getWithMinute(lastApplyDate), getWithMinute(applyDate)) > interval) {
-			return false;
+				&& ChronoUnit.MINUTES.between(getWithMinute(lastApplyDate), getWithMinute(applyDate)) >= interval) {
+			return true;
 		} else if (overLapType.isHour()
-				&& ChronoUnit.HOURS.between(getWithHour(lastApplyDate), getWithHour(applyDate)) > interval) {
-			return false;
+				&& ChronoUnit.HOURS.between(getWithHour(lastApplyDate), getWithHour(applyDate)) >= interval) {
+			return true;
 		} else if (overLapType.isDay()
-				&& ChronoUnit.DAYS.between(getWithDay(lastApplyDate), getWithDay(applyDate)) > interval) {
-			return false;
+				&& ChronoUnit.DAYS.between(getWithDay(lastApplyDate), getWithDay(applyDate)) >= interval) {
+			return true;
 		} else if (overLapType.isMonth()
-				&& ChronoUnit.MONTHS.between(getWithMonth(lastApplyDate), getWithMonth(applyDate)) > interval) {
-			return false;
+				&& ChronoUnit.MONTHS.between(getWithMonth(lastApplyDate), getWithMonth(applyDate)) >= interval) {
+			return true;
 		} else if (overLapType.isYear()
-				&& ChronoUnit.YEARS.between(getWithYear(lastApplyDate), getWithYear(applyDate)) > interval) {
-			return false;
+				&& ChronoUnit.YEARS.between(getWithYear(lastApplyDate), getWithYear(applyDate)) >= interval) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public LocalDateTime getWithMinute(LocalDateTime localDateTime) {
@@ -486,13 +505,14 @@ public class EventApplicationService {
 		List<String> canApplyReward = getCanApplyReward(manageRewardLimit, appliedRewardLimit);
 		Double sumProbability = getSumProbability(canApplyReward, manageRewardProbability);
 		Random rand = new Random();
-		Double randProbability = rand.nextDouble() % sumProbability;
+		Double randProbability = rand.nextInt(13) % sumProbability;
 		String rewardName = "";
 
 		for (String key : canApplyReward) {
 			randProbability -= manageRewardProbability.get(key);
 			if (randProbability < 0) {
 				rewardName = key;
+				break;
 			}
 		}
 
@@ -504,7 +524,9 @@ public class EventApplicationService {
 			Map<String, Integer> appliedRewardLimit) {
 		List<String> rewards = new ArrayList<>();
 		for (String key : manageRewardLimit.keySet()) {
-			if (manageRewardLimit.get(key) > appliedRewardLimit.get(key)) {
+			if (manageRewardLimit.get(key) == 0) {
+				rewards.add(key);
+			} else if (manageRewardLimit.get(key) > appliedRewardLimit.get(key)) {
 				rewards.add(key);
 			}
 		}
@@ -522,7 +544,9 @@ public class EventApplicationService {
 	public String getRewardFCFS(Map<String, Integer> manageRewardLimit, Map<String, Integer> appliedRewardLimit) {
 		String result = "";
 		for (String rewardName : manageRewardLimit.keySet()) {
-			if (manageRewardLimit.get(rewardName) > appliedRewardLimit.get(rewardName)) {
+			if (manageRewardLimit.get(rewardName) == 0) {
+				result = rewardName;
+			} else if (manageRewardLimit.get(rewardName) > appliedRewardLimit.get(rewardName)) {
 				result = rewardName;
 				break;
 			}
@@ -536,12 +560,13 @@ public class EventApplicationService {
 		Map<String, Integer> appliedRewardLimit = setappliedRewardLimit(reward, eventApplications);
 
 		for (String rewardName : manageRewardLimit.keySet()) {
-			if (manageRewardLimit.get(rewardName) > appliedRewardLimit.get(rewardName)) {
+			if (manageRewardLimit.get(rewardName) == 0) {
+				result = true;
+			} else if (manageRewardLimit.get(rewardName) > appliedRewardLimit.get(rewardName)) {
 				result = true;
 				break;
 			}
 		}
-
 		return result;
 	}
 
