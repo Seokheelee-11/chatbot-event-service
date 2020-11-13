@@ -102,6 +102,7 @@ public class EventApplicationService {
 		log.info("save");
 		EventApplication eventApplication = saveEventApplication(eventManage, eventApplicationLog,
 				eventApplicationRequest, resultCode);
+		
 		log.info("response Mapping");
 		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage,
 				eventApplicationLog, resultCode, eventApplication);
