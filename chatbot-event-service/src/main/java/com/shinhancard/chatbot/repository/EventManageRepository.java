@@ -9,8 +9,9 @@ import com.shinhancard.chatbot.entity.EventManage;
 public interface EventManageRepository extends MongoRepository<EventManage, String>{
 	
 	EventManage findOneById(String id);
-	EventManage findOneByEventId(String EventId);
+	EventManage findOneByEventId(String eventId);
 	List<EventManage> findAll();
+	List<EventManage> findAllByEventId(String eventId);
 	
 
 }

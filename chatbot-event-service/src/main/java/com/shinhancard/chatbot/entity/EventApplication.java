@@ -51,4 +51,14 @@ public class EventApplication {
 		this.applicationLogs.add(eventApplicationLog);
 	}
 	
+	public List<EventApplicationLog> getApplicationLogs(String channel){
+		List<EventApplicationLog> eventApplicationLogs = new ArrayList<>();
+		for(EventApplicationLog applicationLog : this.applicationLogs) {
+			if(applicationLog.getChannel().equals(channel)) {
+				eventApplicationLogs.add(applicationLog);
+			}
+		}
+		return eventApplicationLogs;
+	}
+	
 }

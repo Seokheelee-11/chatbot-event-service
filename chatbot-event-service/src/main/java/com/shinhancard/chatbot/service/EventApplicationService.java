@@ -150,7 +150,8 @@ public class EventApplicationService {
 		eventApplicationResponse.setResultCodeAndMessage(resultCode);
 		if (resultCode.isSuccess()) {
 			eventApplicationResponse.setClnn(eventApplication.getClnn());
-			eventApplicationResponse.setEventInfo(setEventInfo(eventManage));
+			// TODO :: EventInfo 호출하는 거 새로 만들었으니까 테스트 해야함.테스트 되면 getEventInfo 메소드는 지워도 됨.
+			eventApplicationResponse.setEventInfo(new EventInfo(eventManage));
 			eventApplicationResponse.setEventApplicationLog(eventApplicationLog);
 			eventApplicationResponse.setResponseInfo(setResponseInfo(eventManage, eventApplicationLog, resultCode));
 		}
@@ -178,8 +179,8 @@ public class EventApplicationService {
 		}
 		return responseInfo;
 	}
-
-	public EventInfo setEventInfo(EventManage eventManage) {
+	
+	public EventInfo getEventInfo(EventManage eventManage) {
 		EventInfo eventInfo = new EventInfo();
 		DefaultInfo defaultInfo = eventManage.getDefaultInfo();
 

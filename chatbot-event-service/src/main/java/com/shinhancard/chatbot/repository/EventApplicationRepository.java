@@ -10,7 +10,10 @@ public interface EventApplicationRepository extends MongoRepository<EventApplica
 	
 	EventApplication findOneById(String id);
 	List<EventApplication> findAllByEventId(String eventId);
+	List<EventApplication> findAllByClnn(String clnn);
+	List<EventApplication> findAllByEventIdAndClnn(String eventId, String clnn);
 	EventApplication findOneByEventIdAndClnn(String eventId, String clnn);
+	
 	
 	
 }
