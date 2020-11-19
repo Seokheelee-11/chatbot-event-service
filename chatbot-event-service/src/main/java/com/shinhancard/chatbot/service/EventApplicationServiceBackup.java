@@ -11,6 +11,7 @@ import java.util.Random;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.shinhancard.chatbot.domain.DefaultInfo;
 import com.shinhancard.chatbot.domain.EventApplicationLog;
@@ -230,7 +231,7 @@ public class EventApplicationServiceBackup {
 			}
 
 			List<String> channels = eventManage.getTarget().getChannels();
-			if (channels.isEmpty() || channels.contains(eventApplicationRequest.getChannel())) {}
+			if (CollectionUtils.isEmpty(channels) || channels.contains(eventApplicationRequest.getChannel())) {}
 			else {
 				resultCode = ResultCode.FAILED;
 			}

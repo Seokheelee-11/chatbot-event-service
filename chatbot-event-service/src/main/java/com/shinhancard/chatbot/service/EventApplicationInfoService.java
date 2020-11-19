@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.shinhancard.chatbot.domain.ApplicationInfo;
 import com.shinhancard.chatbot.dto.request.EventApplicationInfoRequest;
@@ -44,18 +45,20 @@ public class EventApplicationInfoService {
 
 		List<EventApplication> findEventApplications = new ArrayList<>();
 		eventApplicationInfoResponse.setClnn(clnn);
-		if (eventId.isEmpty()) {
+		
+		
+		if (StringUtils.isEmpty(eventId)) {
 			findEventApplications = eventApplicationRepository.findAllByClnn(clnn);
 		} else {
 			findEventApplications = eventApplicationRepository.findAllByEventIdAndClnn(eventId, clnn);
 		}
-
+		
 		if (findEventApplications != null) {
 			for (EventApplication findEventApplication : findEventApplications) {
 				String findEventId = findEventApplication.getEventId();
 				EventManage findEventManage = eventManageRepository.findOneByEventId(findEventId);
 
-				if (channel == null) {
+				if (StringUtils.isEmpty(channel)) {
 					eventApplicationInfoResponse
 							.addApplicationInfo(new ApplicationInfo(findEventApplication, findEventManage));
 				} else {
