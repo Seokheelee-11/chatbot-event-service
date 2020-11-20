@@ -11,6 +11,8 @@ import java.util.Random;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.shinhancard.chatbot.domain.DefaultInfo;
@@ -61,6 +63,7 @@ public class EventApplicationService {
 		return eventApplicationResponse;
 	}
 
+	@Transactional(isolation = Isolation.DEFAULT)
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest) {
 		EventManage eventManage = findEventManageByEventId(eventApplicationRequest);
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
@@ -97,7 +100,6 @@ public class EventApplicationService {
 			log.info("reward");
 			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
 			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
-
 		}
 
 		log.info("save");
@@ -279,7 +281,10 @@ public class EventApplicationService {
 			if (findEventApplication != null) {
 				LocalDateTime lastApplyDate = findEventApplication.getLastApplyDate();
 
-				if (overLap.getHasLimit()) {
+//				if (overLap.getHasLimit()) {
+//					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
+//				}
+				if (overLap.getLimit()!=0) {
 					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
 				}
 				if (canApply) {

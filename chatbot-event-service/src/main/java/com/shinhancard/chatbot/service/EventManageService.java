@@ -1,5 +1,6 @@
 package com.shinhancard.chatbot.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,21 +24,21 @@ public class EventManageService {
 	private ModelMapper modelMapper;
 	private final EventManageRepository eventManageRepository;
 
-	public List<EventManageResponse> getEvents() {	
-		List<EventManage> eventManages = eventManageRepository.findAll(); 
+	public List<EventManageResponse> getEvents() {
+		List<EventManage> eventManages = eventManageRepository.findAll();
 		List<EventManageResponse> eventManageResponses = new ArrayList<EventManageResponse>();
-		for(EventManage eventManage : eventManages) {
-			eventManageResponses.add(modelMapper.map(eventManage, EventManageResponse.class));	
-		}	
+		for (EventManage eventManage : eventManages) {
+			eventManageResponses.add(modelMapper.map(eventManage, EventManageResponse.class));
+		}
 		return eventManageResponses;
 	}
 
 	public EventManageResponse getEventById(String id) {
 		EventManage eventManage = eventManageRepository.findOneById(id);
 		EventManageResponse eventManageResponse = new EventManageResponse();
-		if(eventManage != null) {
+		if (eventManage != null) {
 			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
-		}		
+		}
 		return eventManageResponse;
 	}
 
@@ -46,10 +47,9 @@ public class EventManageService {
 		EventManage findEventManage = eventManageRepository.findOneByEventId(eventManageRequest.getEventId());
 		EventManageResponse eventManageResponse = new EventManageResponse();
 		if (findEventManage == null) {
-			eventManageRepository.save(eventManage);
-			log.info("saved entity {}", eventManage.toString());
-			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
+			eventManageResponse = mappingResponseAndSave(eventManage);
 		}
+
 		return eventManageResponse;
 	}
 
@@ -62,6 +62,18 @@ public class EventManageService {
 
 	public void deleteEvent(String id) {
 		eventManageRepository.deleteById(id);
+	}
+
+	public EventManageResponse mappingResponseAndSave(EventManage eventManage) {
+		LocalDateTime startDate = eventManage.getDefaultInfo().getStartDate();
+		LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
+		EventManageResponse eventManageResponse = new EventManageResponse();
+		if (startDate.isBefore(endDate)) {
+			eventManageRepository.save(eventManage);
+			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
+		}
+
+		return eventManageResponse;
 	}
 
 	public EventManage mappingEventManageAndId(EventManageRequest eventManageRequest, String id) {

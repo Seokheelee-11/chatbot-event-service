@@ -71,30 +71,27 @@ public class EventInfoService {
 
 	public Boolean isTarget(EventManage eventManage, String clnn) {
 		if (eventManage.getTarget().getIsProperty()) {
-		} else {
-			return false;
-		}
-		String targetName = eventManage.getTarget().getTargetName();
-		String nonTargetName = eventManage.getTarget().getNonTargetName();
+			String targetName = eventManage.getTarget().getTargetName();
+			String nonTargetName = eventManage.getTarget().getNonTargetName();
 
-		EventTarget target = eventTargetRepository.findOneByName(targetName);
-		EventTarget nonTarget = eventTargetRepository.findOneByName(nonTargetName);
+			EventTarget target = eventTargetRepository.findOneByName(targetName);
+			EventTarget nonTarget = eventTargetRepository.findOneByName(nonTargetName);
 
-		if (target != null) {
-			if (target.getClnns().contains(clnn)) {
-			} else {
-				return false;
+			if (target != null) {
+				if (target.getClnns().contains(clnn)) {
+				} else {
+					return false;
+				}
 			}
-		}
 
-		if (nonTarget != null) {
-			if (nonTarget.getClnns().contains(clnn)) {
-				return false;
+			if (nonTarget != null) {
+				if (nonTarget.getClnns().contains(clnn)) {
+					return false;
+				}
 			}
-		}
+		}		
 
 		return true;
-
 	}
 
 	public Boolean isTimeRight(EventManage eventManage, TimeClassificationCode timeClassification) {

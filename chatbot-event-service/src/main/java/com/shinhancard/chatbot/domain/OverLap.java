@@ -9,7 +9,7 @@ public class OverLap {
 	private Integer minInterval;
 	private Integer maxInterval;
 	
-	private Boolean hasLimit;
+//	private Boolean hasLimit;
 	private Integer limit;
 	
 	//private Boolean isContinuous;

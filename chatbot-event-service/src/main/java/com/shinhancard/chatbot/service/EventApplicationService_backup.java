@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EventApplicationServiceBackup {
+public class EventApplicationService_backup {
 	@Autowired
 	private ModelMapper modelMapper;
 	private final EventApplicationRepository eventApplicationRepository;
@@ -103,6 +103,7 @@ public class EventApplicationServiceBackup {
 		log.info("save");
 		EventApplication eventApplication = saveEventApplication(eventManage, eventApplicationLog,
 				eventApplicationRequest, resultCode);
+		
 		log.info("response Mapping");
 		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage,
 				eventApplicationLog, resultCode, eventApplication);
@@ -150,7 +151,8 @@ public class EventApplicationServiceBackup {
 		eventApplicationResponse.setResultCodeAndMessage(resultCode);
 		if (resultCode.isSuccess()) {
 			eventApplicationResponse.setClnn(eventApplication.getClnn());
-			eventApplicationResponse.setEventInfo(setEventInfo(eventManage));
+			// TODO :: EventInfo 호출하는 거 새로 만들었으니까 테스트 해야함.테스트 되면 getEventInfo 메소드는 지워도 됨.
+			eventApplicationResponse.setEventInfo(new EventInfo(eventManage));
 			eventApplicationResponse.setEventApplicationLog(eventApplicationLog);
 			eventApplicationResponse.setResponseInfo(setResponseInfo(eventManage, eventApplicationLog, resultCode));
 		}
@@ -178,8 +180,8 @@ public class EventApplicationServiceBackup {
 		}
 		return responseInfo;
 	}
-
-	public EventInfo setEventInfo(EventManage eventManage) {
+	
+	public EventInfo getEventInfo(EventManage eventManage) {
 		EventInfo eventInfo = new EventInfo();
 		DefaultInfo defaultInfo = eventManage.getDefaultInfo();
 
@@ -277,9 +279,12 @@ public class EventApplicationServiceBackup {
 			if (findEventApplication != null) {
 				LocalDateTime lastApplyDate = findEventApplication.getLastApplyDate();
 
-				if (overLap.getHasLimit()) {
-					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
-				}
+//				if (overLap.getHasLimit()) {
+//				canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
+//			}
+			if (overLap.getLimit()!=0) {
+				canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
+			}
 				if (canApply) {
 					canApply = overLap.getIsStartPastDate()
 							? canNoIncludeOverLap(overLap, eventApplicationLog, lastApplyDate)

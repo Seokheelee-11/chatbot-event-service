@@ -9,7 +9,6 @@
      
 spring:
   data:
-  
     mongodb:
       uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
      
@@ -18,7 +17,6 @@ logging:
     root: info
 
 ---
-
 spring:
  profiles: peer1
 

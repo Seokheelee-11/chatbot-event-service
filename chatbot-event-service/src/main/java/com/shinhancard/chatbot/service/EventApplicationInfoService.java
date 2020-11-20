@@ -45,14 +45,13 @@ public class EventApplicationInfoService {
 
 		List<EventApplication> findEventApplications = new ArrayList<>();
 		eventApplicationInfoResponse.setClnn(clnn);
-		
-		
+
 		if (StringUtils.isEmpty(eventId)) {
 			findEventApplications = eventApplicationRepository.findAllByClnn(clnn);
 		} else {
 			findEventApplications = eventApplicationRepository.findAllByEventIdAndClnn(eventId, clnn);
 		}
-		
+
 		if (findEventApplications != null) {
 			for (EventApplication findEventApplication : findEventApplications) {
 				String findEventId = findEventApplication.getEventId();
@@ -62,8 +61,11 @@ public class EventApplicationInfoService {
 					eventApplicationInfoResponse
 							.addApplicationInfo(new ApplicationInfo(findEventApplication, findEventManage));
 				} else {
-					eventApplicationInfoResponse
-							.addApplicationInfo(new ApplicationInfo(findEventApplication, findEventManage, channel));
+					if (findEventApplication.getApplicationLogs(channel).isEmpty()) {
+					} else {
+						eventApplicationInfoResponse.addApplicationInfo(
+								new ApplicationInfo(findEventApplication, findEventManage, channel));
+					}
 				}
 			}
 		}
