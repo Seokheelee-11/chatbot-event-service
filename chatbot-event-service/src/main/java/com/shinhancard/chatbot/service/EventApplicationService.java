@@ -53,6 +53,8 @@ public class EventApplicationService {
 		for(EventApplication eventApplication : eventApplications) {
 			eventApplicationResponses.add(modelMapper.map(eventApplication, EventApplicationResponse.class));	
 		}	
+		
+		//branch test
 		return eventApplicationResponses;
 	}
 
