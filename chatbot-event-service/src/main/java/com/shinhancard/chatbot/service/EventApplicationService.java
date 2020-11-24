@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -50,11 +51,11 @@ public class EventApplicationService {
 	private final EventTargetRepository eventTargetRepository;
 
 	public List<EventApplicationResponse> getEvents() {
-		List<EventApplication> eventApplications = eventApplicationRepository.findAll(); 
+		List<EventApplication> eventApplications = eventApplicationRepository.findAll();
 		List<EventApplicationResponse> eventApplicationResponses = new ArrayList<EventApplicationResponse>();
-		for(EventApplication eventApplication : eventApplications) {
-			eventApplicationResponses.add(modelMapper.map(eventApplication, EventApplicationResponse.class));	
-		}	
+		for (EventApplication eventApplication : eventApplications) {
+			eventApplicationResponses.add(modelMapper.map(eventApplication, EventApplicationResponse.class));
+		}
 		return eventApplicationResponses;
 	}
 
@@ -63,11 +64,14 @@ public class EventApplicationService {
 		return eventApplicationResponse;
 	}
 
-	@Transactional(isolation = Isolation.DEFAULT)
+	// @Transactional(propagation = Propagation.REQUIRES_NEW, isolation =
+	// Isolation.READ_COMMITTED)
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest) {
 		EventManage eventManage = findEventManageByEventId(eventApplicationRequest);
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
 		List<PropertyCode> properties = new ArrayList<PropertyCode>();
+		EventApplication eventApplication = new EventApplication();
+		
 		ResultCode resultCode = ResultCode.SUCCESS;
 
 		if (eventManage == null) {
@@ -78,40 +82,78 @@ public class EventApplicationService {
 		}
 
 		if (properties.contains(PropertyCode.TARGET)) {
-			log.info("target");
 			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.QUIZ)) {
-			log.info("quiz");
 			resultCode = canApplyQuiz(eventManage, eventApplicationRequest, resultCode);
 		}
 
+		if (properties.contains(PropertyCode.OVERLAP) || properties.contains(PropertyCode.REWARD)) {
+			
+		}else if (!properties.contains(PropertyCode.OVERLAP) && !properties.contains(PropertyCode.REWARD)) {
+			eventApplication = saveEventApplication(eventManage, eventApplicationLog,
+					eventApplicationRequest, resultCode);
+		}
+
+
+		
+
 		if (properties.contains(PropertyCode.OVERLAP)) {
-			log.info("overlap");
 			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
 			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
 		} else {
-			log.info("not overlap");
 			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.REWARD)) {
-			log.info("reward");
 			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
 			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
 		}
 
-		log.info("save");
 		EventApplication eventApplication = saveEventApplication(eventManage, eventApplicationLog,
 				eventApplicationRequest, resultCode);
-		
-		log.info("response Mapping");
+
 		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage,
 				eventApplicationLog, resultCode, eventApplication);
 
 		return eventApplicationResponse;
 	}
+
+	
+	
+	
+	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	public ResultCode canApplyOverLapAndApplyReward(List<PropertyCode> properties, EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode, EventApplicationLog eventApplicationLog) {
+		if (properties.contains(PropertyCode.OVERLAP)) {
+			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
+		} else {
+			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
+		}
+
+		if (properties.contains(PropertyCode.REWARD)) {
+			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
+		}
+		return resultCode;
+	}
+	
+	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	public EventApplicationLog setApplicationLog(List<PropertyCode> properties, EventApplicationLog eventApplicationLog, EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		
+		if (properties.contains(PropertyCode.OVERLAP)) {
+			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
+			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
+		} else {
+			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
+		}
+
+		if (properties.contains(PropertyCode.REWARD)) {
+			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
+			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
+		}
+		return eventApplicationLog;
+	}
+	
 
 	public EventApplicationResponse updateEvent(String id, EventApplicationRequest eventApplicationRequest) {
 		EventApplication eventApplication = modelMapper.map(eventApplicationRequest, EventApplication.class);
@@ -126,6 +168,7 @@ public class EventApplicationService {
 		eventApplicationRepository.deleteById(id);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
 	public EventApplication saveEventApplication(EventManage eventManage, EventApplicationLog eventApplicationLog,
 			EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		String eventId = eventApplicationRequest.getEventId();
@@ -182,7 +225,7 @@ public class EventApplicationService {
 		}
 		return responseInfo;
 	}
-	
+
 	public EventInfo getEventInfo(EventManage eventManage) {
 		EventInfo eventInfo = new EventInfo();
 		DefaultInfo defaultInfo = eventManage.getDefaultInfo();
@@ -211,6 +254,7 @@ public class EventApplicationService {
 		return resultCode;
 	}
 
+	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
 	public ResultCode canApplyTarget(EventManage eventManage, EventApplicationRequest eventApplicationRequest,
 			ResultCode resultCode) {
 		if (resultCode.isSuccess()) {
@@ -220,8 +264,8 @@ public class EventApplicationService {
 			EventTarget target = eventTargetRepository.findOneByName(targetName);
 			if (target != null) {
 				List<String> targetClnns = target.getClnns();
-				if (targetClnns.contains(eventApplicationRequest.getClnn())) {}
-				else {
+				if (targetClnns.contains(eventApplicationRequest.getClnn())) {
+				} else {
 					resultCode = ResultCode.FAILED;
 				}
 			}
@@ -235,8 +279,8 @@ public class EventApplicationService {
 			}
 
 			List<String> channels = eventManage.getTarget().getChannels();
-			if (CollectionUtils.isEmpty(channels) || channels.contains(eventApplicationRequest.getChannel())) {}
-			else {
+			if (CollectionUtils.isEmpty(channels) || channels.contains(eventApplicationRequest.getChannel())) {
+			} else {
 				resultCode = ResultCode.FAILED;
 			}
 
@@ -284,7 +328,7 @@ public class EventApplicationService {
 //				if (overLap.getHasLimit()) {
 //					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
 //				}
-				if (overLap.getLimit()!=0) {
+				if (overLap.getLimit() != 0) {
 					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
 				}
 				if (canApply) {
@@ -513,9 +557,10 @@ public class EventApplicationService {
 		List<String> canApplyReward = getCanApplyReward(manageRewardLimit, appliedRewardLimit);
 		Double sumProbability = getSumProbability(canApplyReward, manageRewardProbability);
 		Random rand = new Random();
-		Double randProbability = rand.nextInt(13) % sumProbability;
+		// Double randProbability = rand.nextInt(13) % sumProbability;
+		Double randProbability = rand.nextDouble() * sumProbability;
 		String rewardName = "";
-
+		// log.warn("randProbability : {}", randProbability);
 		for (String key : canApplyReward) {
 			randProbability -= manageRewardProbability.get(key);
 			if (randProbability < 0) {

@@ -27,6 +27,8 @@ public class ModelMapperConfig {
 //			}
 //		};
 		
+		
+		
 //		TypeMap typeMap;
 //		typeMap.addMappings(mapper -> mapper.using(propertyCodeConverter).map(EventTypeRequest.class, EventType.class));
 //		
