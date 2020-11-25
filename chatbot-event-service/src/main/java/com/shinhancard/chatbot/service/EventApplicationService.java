@@ -10,13 +10,13 @@ import java.util.Random;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import com.shinhancard.chatbot.domain.DefaultInfo;
 import com.shinhancard.chatbot.domain.EventApplicationLog;
 import com.shinhancard.chatbot.domain.EventInfo;
 import com.shinhancard.chatbot.domain.OverLap;
@@ -64,14 +64,12 @@ public class EventApplicationService {
 		return eventApplicationResponse;
 	}
 
-	// @Transactional(propagation = Propagation.REQUIRES_NEW, isolation =
-	// Isolation.READ_COMMITTED)
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest) {
 		EventManage eventManage = findEventManageByEventId(eventApplicationRequest);
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
 		List<PropertyCode> properties = new ArrayList<PropertyCode>();
 		EventApplication eventApplication = new EventApplication();
-		
+
 		ResultCode resultCode = ResultCode.SUCCESS;
 
 		if (eventManage == null) {
@@ -90,70 +88,20 @@ public class EventApplicationService {
 		}
 
 		if (properties.contains(PropertyCode.OVERLAP) || properties.contains(PropertyCode.REWARD)) {
-			
-		}else if (!properties.contains(PropertyCode.OVERLAP) && !properties.contains(PropertyCode.REWARD)) {
-			eventApplication = saveEventApplication(eventManage, eventApplicationLog,
+			Pair<ResultCode, EventApplication> pair = canApplyAndSaveEventApplciation(properties, eventApplicationLog,
+					eventManage, eventApplicationRequest, resultCode);
+			resultCode = pair.getFirst();
+			eventApplication = pair.getSecond();
+		} else {
+			eventApplication = saveEventApplication(properties, eventApplicationLog, eventManage,
 					eventApplicationRequest, resultCode);
 		}
 
-
-		
-
-		if (properties.contains(PropertyCode.OVERLAP)) {
-			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
-			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
-		} else {
-			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
-		}
-
-		if (properties.contains(PropertyCode.REWARD)) {
-			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
-			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
-		}
-
-		EventApplication eventApplication = saveEventApplication(eventManage, eventApplicationLog,
-				eventApplicationRequest, resultCode);
-
-		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage,
-				eventApplicationLog, resultCode, eventApplication);
+		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage, resultCode,
+				eventApplication);
 
 		return eventApplicationResponse;
 	}
-
-	
-	
-	
-	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-	public ResultCode canApplyOverLapAndApplyReward(List<PropertyCode> properties, EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode, EventApplicationLog eventApplicationLog) {
-		if (properties.contains(PropertyCode.OVERLAP)) {
-			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
-		} else {
-			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
-		}
-
-		if (properties.contains(PropertyCode.REWARD)) {
-			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
-		}
-		return resultCode;
-	}
-	
-	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-	public EventApplicationLog setApplicationLog(List<PropertyCode> properties, EventApplicationLog eventApplicationLog, EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
-		
-		if (properties.contains(PropertyCode.OVERLAP)) {
-			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
-			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
-		} else {
-			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
-		}
-
-		if (properties.contains(PropertyCode.REWARD)) {
-			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
-			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
-		}
-		return eventApplicationLog;
-	}
-	
 
 	public EventApplicationResponse updateEvent(String id, EventApplicationRequest eventApplicationRequest) {
 		EventApplication eventApplication = modelMapper.map(eventApplicationRequest, EventApplication.class);
@@ -168,38 +116,80 @@ public class EventApplicationService {
 		eventApplicationRepository.deleteById(id);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
-	public EventApplication saveEventApplication(EventManage eventManage, EventApplicationLog eventApplicationLog,
+	@Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+	public Pair<ResultCode, EventApplication> canApplyAndSaveEventApplciation(List<PropertyCode> properties,
+			EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		EventApplication eventApplication = new EventApplication();
+		resultCode = canApplyOverLapAndReward(properties, eventApplicationLog, eventManage, eventApplicationRequest,
+				resultCode);
+//		eventApplicationLog = setApplicationLog(properties, eventApplicationLog, eventManage, eventApplicationRequest,
+//				resultCode);
+		eventApplication = saveEventApplication(properties, eventApplicationLog, eventManage, eventApplicationRequest,
+				resultCode);
+		return Pair.of(resultCode, eventApplication);
+	}
+
+	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	public ResultCode canApplyOverLapAndReward(List<PropertyCode> properties, EventApplicationLog eventApplicationLog,
+			EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if (properties.contains(PropertyCode.OVERLAP)) {
+			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
+		} else {
+			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
+		}
+
+		if (properties.contains(PropertyCode.REWARD)) {
+			resultCode = canApplyReward(eventManage, eventApplicationRequest, resultCode);
+		}
+		return resultCode;
+	}
+
+	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	public EventApplicationLog setApplicationLog(List<PropertyCode> properties, EventApplicationLog eventApplicationLog,
+			EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if (properties.contains(PropertyCode.OVERLAP)) {
+			eventApplicationLog.setOrder(getOverLapOrder(eventApplicationRequest, resultCode));
+		}
+
+		if (properties.contains(PropertyCode.REWARD)) {
+			eventApplicationLog.setRewardName(getReward(eventManage, eventApplicationRequest, resultCode));
+		}
+		return eventApplicationLog;
+	}
+
+	@Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+	public EventApplication saveEventApplication(List<PropertyCode> properties, EventApplicationLog eventApplicationLog,
+			EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		String eventId = eventApplicationRequest.getEventId();
 		String clnn = eventApplicationRequest.getClnn();
-
-		EventApplication eventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
-		if (eventApplication == null) {
-			eventApplication = new EventApplication();
-			eventApplication.setClnn(clnn);
-			eventApplication.setEventId(eventId);
-		}
-		eventApplication.addApplicationLogs(eventApplicationLog);
-
+		EventApplication eventApplication = new EventApplication();
 		if (resultCode.isSuccess()) {
+			eventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
+			if (eventApplication == null) {
+				eventApplication = new EventApplication();
+				eventApplication.setClnn(clnn);
+				eventApplication.setEventId(eventId);
+			}
+			eventApplicationLog = setApplicationLog(properties, eventApplicationLog, eventManage, eventApplicationRequest,
+					resultCode);
+			eventApplication.addApplicationLogs(eventApplicationLog);
 			eventApplicationRepository.save(eventApplication);
 		}
-
 		return eventApplication;
 	}
 
-	public EventApplicationResponse setEventApplicationResponse(EventManage eventManage,
-			EventApplicationLog eventApplicationLog, ResultCode resultCode, EventApplication eventApplication) {
+	public EventApplicationResponse setEventApplicationResponse(EventManage eventManage, ResultCode resultCode,
+			EventApplication eventApplication) {
 		EventApplicationResponse eventApplicationResponse = new EventApplicationResponse();
 
 		eventApplicationResponse.setResultCodeAndMessage(resultCode);
 		if (resultCode.isSuccess()) {
 			eventApplicationResponse.setClnn(eventApplication.getClnn());
-			// TODO :: EventInfo 호출하는 거 새로 만들었으니까 테스트 해야함.테스트 되면 getEventInfo 메소드는 지워도 됨.
 			eventApplicationResponse.setEventInfo(new EventInfo(eventManage));
-			eventApplicationResponse.setEventApplicationLog(eventApplicationLog);
-			eventApplicationResponse.setResponseInfo(setResponseInfo(eventManage, eventApplicationLog, resultCode));
+			eventApplicationResponse.setEventApplicationLog(eventApplication.getLastApplicationLog());
+			eventApplicationResponse.setResponseInfo(
+					setResponseInfo(eventManage, eventApplication.getLastApplicationLog(), resultCode));
 		}
 		return eventApplicationResponse;
 	}
@@ -224,19 +214,6 @@ public class EventApplicationService {
 			responseInfo.setResponseMessage(response.getFailureMessage());
 		}
 		return responseInfo;
-	}
-
-	public EventInfo getEventInfo(EventManage eventManage) {
-		EventInfo eventInfo = new EventInfo();
-		DefaultInfo defaultInfo = eventManage.getDefaultInfo();
-
-		eventInfo.setEventId(eventManage.getEventId());
-		eventInfo.setName(defaultInfo.getName());
-		eventInfo.setDiscription(defaultInfo.getDescription());
-		eventInfo.setStartDate(defaultInfo.getStartDate());
-		eventInfo.setEndDate(defaultInfo.getEndDate());
-
-		return eventInfo;
 	}
 
 	public ResultCode canApplyDate(EventManage eventManage, EventApplicationLog eventApplicationLog,
@@ -325,9 +302,6 @@ public class EventApplicationService {
 			if (findEventApplication != null) {
 				LocalDateTime lastApplyDate = findEventApplication.getLastApplyDate();
 
-//				if (overLap.getHasLimit()) {
-//					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
-//				}
 				if (overLap.getLimit() != 0) {
 					canApply = overLap.getLimit() > findEventApplication.getLastOrder() + 1 ? canApply : false;
 				}

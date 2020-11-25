@@ -29,6 +29,11 @@ public class EventApplication {
 		
 	}
 	
+	public EventApplicationLog getLastApplicationLog() {
+		return this.applicationLogs.get(applicationLogs.size()-1);
+	}
+	
+	
 	public Integer getLastOrder() {
 		return this.applicationLogs.size();
 	}
