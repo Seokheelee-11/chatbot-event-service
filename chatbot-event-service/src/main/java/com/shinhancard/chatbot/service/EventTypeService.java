@@ -30,14 +30,14 @@ public class EventTypeService {
 		return eventTypeResponses;
 	}
 
-	public EventTypeResponse getEventById(String id) {
-		EventTypeResponse eventTypeResponse = new EventTypeResponse();
+	public EventTypeResponse getEventTypeById(String id) {
+		EventType eventType = new EventType();
+		eventType = eventTypeRepository.findOneById(id);
+		EventTypeResponse eventTypeResponse = modelMapper.map(eventType, EventTypeResponse.class);
 		return eventTypeResponse;
 	}
 
-	public EventTypeResponse registEvent(EventTypeRequest eventTypeRequest) {
-		
-		
+	public EventTypeResponse registEventType(EventTypeRequest eventTypeRequest) {
 		EventType eventType = modelMapper.map(eventTypeRequest, EventType.class);
 		eventTypeRepository.save(eventType);
 		EventTypeResponse eventTypeResponse = modelMapper.map(eventType, EventTypeResponse.class);
@@ -53,7 +53,7 @@ public class EventTypeService {
 	}
 
 	public void deleteEvent(String id) {
-
+		eventTypeRepository.deleteById(id);
 	}
 
 	public EventType mappingEventTypeAndId(EventTypeRequest eventTypeRequest, String id) {

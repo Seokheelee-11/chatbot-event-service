@@ -31,7 +31,7 @@ public class DefaultController {
 	public void probTest() {
 		EventApplicationRequest eventApplicationRequest = new EventApplicationRequest();
 		EventApplicationResponse eventApplicationResponse = new EventApplicationResponse();
-		String clnn = "P000000003";
+		String clnn = "P000000030";
 		String eventId = "test12";
 		eventApplicationRequest.setClnn(clnn);
 		eventApplicationRequest.setEventId(eventId);

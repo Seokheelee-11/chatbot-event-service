@@ -34,13 +34,13 @@ public class EventTypeController {
 	
 	@GetMapping("{id}")
 	public EventTypeResponse getEventById(@PathVariable String id) {
-		return eventTypeService.getEventById(id);
+		return eventTypeService.getEventTypeById(id);
 	}
 	
 	@PostMapping
 	public EventTypeResponse registEvent(@RequestBody EventTypeRequest eventTypeRequest) {
 		log.info("regist request {}", eventTypeRequest.toString());
-		return eventTypeService.registEvent(eventTypeRequest);
+		return eventTypeService.registEventType(eventTypeRequest);
 	}
 	
 	@PutMapping("{id}")

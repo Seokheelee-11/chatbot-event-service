@@ -30,6 +30,7 @@ public class EventTargetController {
 
 	@GetMapping
 	public List<EventTargetResponse> getTargets() {
+	
 		return eventTargetService.getTargets();
 	}
 	

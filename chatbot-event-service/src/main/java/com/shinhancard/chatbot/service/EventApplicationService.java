@@ -50,18 +50,16 @@ public class EventApplicationService {
 	private final EventManageRepository eventManageRepository;
 	private final EventTargetRepository eventTargetRepository;
 
-	public List<EventApplicationResponse> getEvents() {
+	public List<EventApplication> getEvents() {
 		List<EventApplication> eventApplications = eventApplicationRepository.findAll();
-		List<EventApplicationResponse> eventApplicationResponses = new ArrayList<EventApplicationResponse>();
-		for (EventApplication eventApplication : eventApplications) {
-			eventApplicationResponses.add(modelMapper.map(eventApplication, EventApplicationResponse.class));
-		}
-		return eventApplicationResponses;
+		return eventApplications;
 	}
 
-	public EventApplicationResponse getEventById(String id) {
-		EventApplicationResponse eventApplicationResponse = new EventApplicationResponse();
-		return eventApplicationResponse;
+	@Transactional(readOnly = true)
+	public EventApplication getEventById(String id) {
+		EventApplication eventApplication = new EventApplication();
+		eventApplication = eventApplicationRepository.findOneById(id);
+		return eventApplication;
 	}
 
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest) {
@@ -103,13 +101,10 @@ public class EventApplicationService {
 		return eventApplicationResponse;
 	}
 
-	public EventApplicationResponse updateEvent(String id, EventApplicationRequest eventApplicationRequest) {
-		EventApplication eventApplication = modelMapper.map(eventApplicationRequest, EventApplication.class);
-		eventApplication.setId(id);
+	
+	public EventApplication updateEvent(String id, EventApplication eventApplication) {
 		eventApplicationRepository.save(eventApplication);
-		EventApplicationResponse eventApplicationResponse = modelMapper.map(eventApplication,
-				EventApplicationResponse.class);
-		return eventApplicationResponse;
+		return eventApplication;
 	}
 
 	public void deleteEvent(String id) {
@@ -193,6 +188,8 @@ public class EventApplicationService {
 		}
 		return eventApplicationResponse;
 	}
+
+	
 
 	public ResponseInfo setResponseInfo(EventManage eventManage, EventApplicationLog eventApplicationLog,
 			ResultCode resultCode) {

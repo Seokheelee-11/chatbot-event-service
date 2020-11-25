@@ -8,5 +8,6 @@ public interface EventTypeRepository extends MongoRepository<EventType, String>{
 	
 //	EventType findOneByType(String type);
 	EventType findOneByIdAndType(String id, String type);
+	EventType findOneById(String id);
 	
 }

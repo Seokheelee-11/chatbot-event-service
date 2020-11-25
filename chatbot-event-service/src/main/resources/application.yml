@@ -18,15 +18,14 @@ logging:
 
 ---
 spring:
- profiles: peer1
-
+ profiles: peer1,dev
 server:
-  port: 8080
+  port: 7680
   
 ---
 
 spring:
- profiles: peer2
+ profiles: test
 
 server:
-  port: 8090
+  port: 8680
