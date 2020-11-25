@@ -7,10 +7,6 @@
 #      username: chatbotAdmin
 #      password: bot123!
      
-spring:
-  data:
-    mongodb:
-      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
      
 logging:
   level:
@@ -18,14 +14,22 @@ logging:
 
 ---
 spring:
- profiles: peer1,dev
+ profiles: peer1
+ data:
+    mongodb:
+      uri: mongodb+srv://chatbot:lsbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+
 server:
   port: 7680
+
   
 ---
 
 spring:
- profiles: test
+ profiles: peer2
+ data:
+    mongodb:
+      uri: mongodb+srv://chatbot:lsbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
 
 server:
   port: 8680
