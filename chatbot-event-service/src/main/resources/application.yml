@@ -8,7 +8,7 @@
 #      password: bot123!
      
 spring:
- data:
+  data:
     mongodb:
       uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority  
 

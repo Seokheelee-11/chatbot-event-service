@@ -30,16 +30,16 @@ public class EventApplication {
 	}
 	
 	public EventApplicationLog getLastApplicationLog() {
-		return this.applicationLogs.get(applicationLogs.size()-1);
+		return this.applicationLogs.get(this.applicationLogs.size()-1);
 	}
 	
 	
-	public Integer getLastOrder() {
+	public Integer getApplicationCount() {
 		return this.applicationLogs.size();
 	}
 	
 	public LocalDateTime getLastApplyDate() {
-		return this.applicationLogs.get(this.getLastOrder()-1).getApplyDate();
+		return this.applicationLogs.get(this.applicationLogs.size()-1).getApplyDate();
 	}
 	
 	public Integer getRewardAppliedNumber(String rewardName) {
