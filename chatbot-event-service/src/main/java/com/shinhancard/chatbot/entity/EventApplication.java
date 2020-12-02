@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.util.StringUtils;
 
 import com.shinhancard.chatbot.domain.EventApplicationLog;
 
@@ -45,7 +46,7 @@ public class EventApplication {
 	public Integer getRewardAppliedNumber(String rewardName) {
 		Integer totalNumber = 0;
 		for(EventApplicationLog applicationLog : this.applicationLogs) {
-			if(applicationLog.getRewardName().equals(rewardName)){
+			if(StringUtils.pathEquals(rewardName, applicationLog.getRewardName())){
 				totalNumber++;
 			}
 		}

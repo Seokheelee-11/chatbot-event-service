@@ -34,15 +34,9 @@ public class EventManage {
 	public List<PropertyCode> getProperties(){
 		List<PropertyCode> properties = new ArrayList<PropertyCode>();
 		
-//		if(this.defaultInfo.getIsProperty()) {
-//			properties.add(PropertyCode.DEFAULT);
-//		}
 		if(this.target.getIsProperty()) {
 			properties.add(PropertyCode.TARGET);
 		}
-//		if(this.response.getIsProperty()) {
-//			properties.add(PropertyCode.RESPONSE);
-//		}
 		if(this.overLap.getIsProperty()) {
 			properties.add(PropertyCode.OVERLAP);
 		}
@@ -52,7 +46,6 @@ public class EventManage {
 		if(this.reward.getIsProperty()) {
 			properties.add(PropertyCode.REWARD);
 		}
-		
 		return properties;
 	}
 

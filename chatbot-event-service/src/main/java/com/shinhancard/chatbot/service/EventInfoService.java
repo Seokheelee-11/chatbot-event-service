@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.shinhancard.chatbot.domain.EventInfo;
@@ -56,17 +57,32 @@ public class EventInfoService {
 		}
 
 		for (EventManage eventManage : eventManages) {
-			if (isTimeRight(eventManage, timeClassification) && isTarget(eventManage, clnn)) {
-				if (channel == null) {
-					eventInfoResponse.addEventInfo(new EventInfo(eventManage));
-				} else if (eventManage.getProperties().contains(PropertyCode.TARGET)
-						&& eventManage.getTarget().getChannels().contains(channel)) {
-					eventInfoResponse.addEventInfo(new EventInfo(eventManage));
-				}
+			if (isTimeRight(eventManage, timeClassification) && isTarget(eventManage, clnn)
+					&& isChannelRight(eventManage, channel)) {
+				eventInfoResponse.addEventInfo(new EventInfo(eventManage));
 			}
 		}
 
 		return eventInfoResponse;
+	}
+
+	public Boolean isChannelRight(EventManage eventManage, String channel) {
+		Boolean result = false;
+		if (StringUtils.isEmpty(channel)) {
+			result = true;
+		}
+
+		if (eventManage.getProperties().contains(PropertyCode.TARGET)) {
+			List<String> channels = eventManage.getTarget().getChannels();
+			if (CollectionUtils.isEmpty(channels)) {
+				result = true;
+			} else if (channels.contains(channel)) {
+				result = true;
+			}
+		} else {
+			result = true;
+		}
+		return result;
 	}
 
 	public Boolean isTarget(EventManage eventManage, String clnn) {
@@ -89,7 +105,7 @@ public class EventInfoService {
 					return false;
 				}
 			}
-		}		
+		}
 
 		return true;
 	}

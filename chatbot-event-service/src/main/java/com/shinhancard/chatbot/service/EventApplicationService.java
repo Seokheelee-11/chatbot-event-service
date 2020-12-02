@@ -28,7 +28,6 @@ import com.shinhancard.chatbot.domain.ResultCode;
 import com.shinhancard.chatbot.domain.Reward;
 import com.shinhancard.chatbot.domain.RewardCode;
 import com.shinhancard.chatbot.domain.RewardInfo;
-import com.shinhancard.chatbot.domain.TotalLimitCode;
 import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
 import com.shinhancard.chatbot.dto.response.EventApplicationResponse;
 import com.shinhancard.chatbot.entity.EventApplication;
@@ -68,36 +67,19 @@ public class EventApplicationService {
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
 		List<PropertyCode> properties = new ArrayList<PropertyCode>();
 		EventApplication eventApplication = new EventApplication();
-
+		Pair<ResultCode, EventApplication> pair;
 		ResultCode resultCode = ResultCode.SUCCESS;
 
-		if (eventManage == null) {
-			resultCode = ResultCode.FAILED;
-		} else {
+		if (eventManage != null) {
 			properties = eventManage.getProperties();
-			resultCode = canApplyDate(eventManage, eventApplicationLog, resultCode);
 		}
 
-		if (properties.contains(PropertyCode.TARGET)) {
-			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
-		}
+		resultCode = canApply(properties, eventApplicationLog, eventManage, eventApplicationRequest, resultCode);
+		pair = concurrencyControlAndSave(properties, eventApplicationLog, eventManage, eventApplicationRequest,
+				resultCode);
 
-		if (properties.contains(PropertyCode.QUIZ)) {
-			resultCode = canApplyQuiz(eventManage, eventApplicationRequest, resultCode);
-		}
-
-		if (properties.contains(PropertyCode.OVERLAP) || properties.contains(PropertyCode.REWARD)) {
-			Pair<ResultCode, EventApplication> pair = canApplyAndSaveEventApplciation(properties, eventApplicationLog,
-					eventManage, eventApplicationRequest, resultCode);
-			resultCode = pair.getFirst();
-			eventApplication = pair.getSecond();
-		} else {
-			if (!properties.contains(PropertyCode.OVERLAP)) {
-				resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
-			}
-			eventApplication = saveEventApplication(properties, eventApplicationLog, eventManage,
-					eventApplicationRequest, resultCode);
-		}
+		resultCode = pair.getFirst();
+		eventApplication = pair.getSecond();
 
 		EventApplicationResponse eventApplicationResponse = setEventApplicationResponse(eventManage, resultCode,
 				eventApplication);
@@ -113,27 +95,44 @@ public class EventApplicationService {
 	public void deleteEvent(String id) {
 		eventApplicationRepository.deleteById(id);
 	}
-	
+
+	public ResultCode canApply(List<PropertyCode> properties, EventApplicationLog eventApplicationLog,
+			EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+		if (eventManage == null) {
+			resultCode = ResultCode.FAILED;
+		} else {
+			resultCode = canApplyDate(eventManage, eventApplicationLog, resultCode);
+		}
+		if (properties.contains(PropertyCode.TARGET)) {
+			resultCode = canApplyTarget(eventManage, eventApplicationRequest, resultCode);
+		}
+		if (properties.contains(PropertyCode.QUIZ)) {
+			resultCode = canApplyQuiz(eventManage, eventApplicationRequest, resultCode);
+		}
+
+		return resultCode;
+	}
+
 	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 	public ResultCode canApplyTotalLimit(ResultCode resultCode, EventManage eventManage) {
-		TotalLimitCode type = eventManage.getDefaultInfo().getTotalLimitType();
+		// TotalLimitCode type = eventManage.getDefaultInfo().getTotalLimitType();
 		String eventId = eventManage.getEventId();
-		Integer totalLimit = eventManage.getDefaultInfo().getTotalLimit();
+
+		Integer limitApplication = eventManage.getDefaultInfo().getLimitApplication();
+		Integer limitClnn = eventManage.getDefaultInfo().getLimitClnn();
 		if (resultCode == ResultCode.SUCCESS) {
-			if (type.equals(TotalLimitCode.APPLICATION)) {
-				List<EventApplication> eventApplications = eventApplicationRepository.findAllByEventId(eventId);
-				if(eventApplications != null) {
+
+			List<EventApplication> eventApplications = eventApplicationRepository.findAllByEventId(eventId);
+			if (eventApplications.size() != 0) {
+				if (limitApplication != 0) {
 					Integer count = 0;
-					for(EventApplication eventApplication : eventApplications) {
+					for (EventApplication eventApplication : eventApplications) {
 						count += eventApplication.getApplicationCount();
 					}
-					resultCode = totalLimit <= count ? resultCode : ResultCode.FAILED;		
+					resultCode = limitApplication > count ? resultCode : ResultCode.FAILED;
 				}
-			}
-			if(type.equals(TotalLimitCode.CLNN)) {
-				List<EventApplication> eventApplications = eventApplicationRepository.findAllByEventId(eventId);
-				if(eventApplications != null) {
-					resultCode = totalLimit <= eventApplications.size() ? resultCode : ResultCode.FAILED;		
+				if (limitClnn != 0) {
+					resultCode = limitClnn > eventApplications.size() ? resultCode : ResultCode.FAILED;
 				}
 			}
 		}
@@ -141,18 +140,14 @@ public class EventApplicationService {
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
-	public Pair<ResultCode, EventApplication> canApplyAndSaveEventApplciation(List<PropertyCode> properties,
+	public Pair<ResultCode, EventApplication> concurrencyControlAndSave(List<PropertyCode> properties,
 			EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
-		EventApplication eventApplication = new EventApplication();
-
-		
+		Pair<ResultCode, EventApplication> pair;
 		resultCode = canApplyOverLapAndReward(properties, eventApplicationLog, eventManage, eventApplicationRequest,
 				resultCode);
-
-		eventApplication = saveEventApplication(properties, eventApplicationLog, eventManage, eventApplicationRequest,
-				resultCode);
-		return Pair.of(resultCode, eventApplication);
+		pair = saveEventApplication(properties, eventApplicationLog, eventManage, eventApplicationRequest, resultCode);
+		return pair;
 	}
 
 	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -160,6 +155,8 @@ public class EventApplicationService {
 			EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		if (properties.contains(PropertyCode.OVERLAP)) {
 			resultCode = canApplyOverLap(eventManage, eventApplicationRequest, resultCode, eventApplicationLog);
+		} else {
+			resultCode = canApplyNotOverLap(eventApplicationRequest, resultCode);
 		}
 
 		if (properties.contains(PropertyCode.REWARD)) {
@@ -182,12 +179,13 @@ public class EventApplicationService {
 	}
 
 	@Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
-	public EventApplication saveEventApplication(List<PropertyCode> properties, EventApplicationLog eventApplicationLog,
-			EventManage eventManage, EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
+	public Pair<ResultCode, EventApplication> saveEventApplication(List<PropertyCode> properties,
+			EventApplicationLog eventApplicationLog, EventManage eventManage,
+			EventApplicationRequest eventApplicationRequest, ResultCode resultCode) {
 		String eventId = eventApplicationRequest.getEventId();
 		String clnn = eventApplicationRequest.getClnn();
 		EventApplication eventApplication = new EventApplication();
-
+		resultCode = canApplyTotalLimit(resultCode, eventManage);
 		if (resultCode.isSuccess()) {
 			eventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
 			if (eventApplication == null) {
@@ -200,7 +198,7 @@ public class EventApplicationService {
 			eventApplication.addApplicationLogs(eventApplicationLog);
 			eventApplicationRepository.save(eventApplication);
 		}
-		return eventApplication;
+		return Pair.of(resultCode, eventApplication);
 	}
 
 	public EventApplicationResponse setEventApplicationResponse(EventManage eventManage, ResultCode resultCode,
@@ -345,9 +343,7 @@ public class EventApplicationService {
 		if (resultCode.isSuccess()) {
 			String clnn = eventApplicationRequest.getClnn();
 			String eventId = eventApplicationRequest.getEventId();
-
 			EventApplication findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
-
 			if (findEventApplication != null) {
 				resultCode = ResultCode.FAILED_ALREADY_APPLIED;
 			}
@@ -613,6 +609,7 @@ public class EventApplicationService {
 		for (String rewardName : manageRewardLimit.keySet()) {
 			if (manageRewardLimit.get(rewardName) == 0) {
 				result = true;
+				break;
 			} else if (manageRewardLimit.get(rewardName) > appliedRewardLimit.get(rewardName)) {
 				result = true;
 				break;

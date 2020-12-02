@@ -3,13 +3,13 @@ package com.shinhancard.chatbot.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import com.shinhancard.chatbot.domain.Reward;
+import com.shinhancard.chatbot.domain.RewardCode;
 import com.shinhancard.chatbot.domain.RewardInfo;
 import com.shinhancard.chatbot.dto.request.EventManageRequest;
 import com.shinhancard.chatbot.dto.response.EventManageResponse;
@@ -71,24 +71,52 @@ public class EventManageService {
 		LocalDateTime startDate = eventManage.getDefaultInfo().getStartDate();
 		LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
 		EventManageResponse eventManageResponse = new EventManageResponse();
-		if (startDate.isBefore(endDate)) {
-			eventManage = setRewardId(eventManage);
+		if (startDate.isBefore(endDate) && checkRewardConfig(eventManage)) {
+//TODO :: 나중에 서비스가 커지면 entity를 하나 더 만들거임. 신청 별로 한줄로 받을 수 있게, 그때 reward id를 넣어서 서로 join할 수 있게 만들거임
+//			eventManage = setRewardId(eventManage);
 			eventManageRepository.save(eventManage);
 			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
 		}
-
 		return eventManageResponse;
 	}
 
-	public EventManage setRewardId(EventManage eventManage) {
-		for (RewardInfo reward : eventManage.getReward().getInfoes()) {
-			if (StringUtils.isEmpty(reward.getId())) {
-				UUID uid = UUID.randomUUID();
-				reward.setId(uid.toString());
+	public Boolean checkRewardConfig(EventManage eventManage) {
+		Boolean result = true;
+		Reward reward = eventManage.getReward();
+		List<RewardInfo> rewardInfoes = reward.getInfoes();
+		if (reward.getIsProperty()) {
+			if (reward.getType().equals(RewardCode.DRAWROTS)) {
+				for (RewardInfo rewardInfo : rewardInfoes) {
+					if (rewardInfo.getProbability() <= 0.0) {
+						result = false;
+						break;
+					}
+				}
 			}
+
+			for (RewardInfo rewardInfo : rewardInfoes) {
+				if (rewardInfo.getLimit() < 0) {
+					result = false;
+					break;
+				}
+			}
+
 		}
-		return eventManage;
+		return result;
+
 	}
+
+	// TODO :: 나중에 서비스가 커지면 entity를 하나 더 만들거임. 신청 별로 한줄로 받을 수 있게, 그때 reward id를 넣어서
+	// 서로 join할 수 있게 만들거임
+//	public EventManage setRewardId(EventManage eventManage) {
+//		for (RewardInfo reward : eventManage.getReward().getInfoes()) {
+//			if (StringUtils.isEmpty(reward.getId())) {
+//				UUID uid = UUID.randomUUID();
+//				reward.setId(uid.toString());
+//			}
+//		}
+//		return eventManage;
+//	}
 
 	public EventManage mappingEventManageAndId(EventManageRequest eventManageRequest, String id) {
 		EventManage eventManage = modelMapper.map(eventManageRequest, EventManage.class);

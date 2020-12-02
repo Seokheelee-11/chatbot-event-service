@@ -11,7 +11,8 @@ public class DefaultInfo {
 	private LocalDateTime startDate;
 	private LocalDateTime endDate;
 	private String description;
-	private TotalLimitCode totalLimitType;
-	private Integer totalLimit;
+	
+	private Integer limitClnn;
+	private Integer limitApplication;
 
 }
