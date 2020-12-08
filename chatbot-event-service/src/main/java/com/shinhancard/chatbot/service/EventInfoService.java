@@ -49,6 +49,7 @@ public class EventInfoService {
 		List<EventManage> eventManages = new ArrayList<>();
 		eventInfoResponse.setClnn(clnn);
 		eventInfoResponse.setTimeClassification(timeClassification);
+		eventInfoResponse.setChannel(channel);
 
 		if (StringUtils.isEmpty(eventId)) {
 			eventManages = eventManageRepository.findAll();
