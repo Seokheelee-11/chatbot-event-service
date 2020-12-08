@@ -20,7 +20,7 @@ public class EventInfoController {
 	
 	private final EventInfoService eventInfoService;
 
-	@PostMapping
+	@PostMapping("/totalEvent")
 	public EventInfoResponse getEventInfo(
 			@RequestBody EventInfoRequest eventInfoRequest) {
 		return eventInfoService.getEventInfo(eventInfoRequest);

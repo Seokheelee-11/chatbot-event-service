@@ -34,6 +34,25 @@ public class EventApplication {
 		return this.applicationLogs.get(this.applicationLogs.size()-1);
 	}
 	
+	public EventApplicationLog getLastApplicationLog(String channel) {
+		EventApplicationLog lastEventApplicationLog = new EventApplicationLog();
+		for(EventApplicationLog applicationLog : this.applicationLogs) {
+			if(applicationLog.getChannel().equals(channel)) {
+				lastEventApplicationLog = applicationLog;
+			}
+		}
+		return lastEventApplicationLog;
+	}
+	
+	public List<EventApplicationLog> getApplicationLogs(String channel){
+		List<EventApplicationLog> eventApplicationLogs = new ArrayList<>();
+		for(EventApplicationLog applicationLog : this.applicationLogs) {
+			if(applicationLog.getChannel().equals(channel)) {
+				eventApplicationLogs.add(applicationLog);
+			}
+		}
+		return eventApplicationLogs;
+	}
 	
 	public Integer getApplicationCount() {
 		return this.applicationLogs.size();
@@ -55,16 +74,6 @@ public class EventApplication {
 	
 	public void addApplicationLogs(EventApplicationLog eventApplicationLog) {
 		this.applicationLogs.add(eventApplicationLog);
-	}
-	
-	public List<EventApplicationLog> getApplicationLogs(String channel){
-		List<EventApplicationLog> eventApplicationLogs = new ArrayList<>();
-		for(EventApplicationLog applicationLog : this.applicationLogs) {
-			if(applicationLog.getChannel().equals(channel)) {
-				eventApplicationLogs.add(applicationLog);
-			}
-		}
-		return eventApplicationLogs;
 	}
 	
 }

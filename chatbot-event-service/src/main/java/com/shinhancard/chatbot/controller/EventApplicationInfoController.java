@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.shinhancard.chatbot.dto.request.EventApplicationInfoRequest;
-import com.shinhancard.chatbot.dto.response.EventApplicationInfoResponse;
+import com.shinhancard.chatbot.dto.request.OneEventApplicationInfoRequest;
+import com.shinhancard.chatbot.dto.request.TotalEventApplicationInfoRequest;
+import com.shinhancard.chatbot.dto.response.OneEventApplicationInfoResponse;
+import com.shinhancard.chatbot.dto.response.TotalEventApplicationInfoResponse;
 import com.shinhancard.chatbot.service.EventApplicationInfoService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,9 +22,14 @@ public class EventApplicationInfoController {
 	
 	private final EventApplicationInfoService eventApplicationInfoService;
 
-	@PostMapping
-	public EventApplicationInfoResponse getEventApplicationInfo(
-			@RequestBody EventApplicationInfoRequest eventApplicationInfoRequest) {
-		return eventApplicationInfoService.getEventApplicationInfo(eventApplicationInfoRequest);
+	@PostMapping("/oneEvent")
+	public OneEventApplicationInfoResponse getOneEventApplicationInfo(
+			@RequestBody OneEventApplicationInfoRequest oneEventApplicationInfoRequest) {
+		return eventApplicationInfoService.getOneEventApplicationInfo(oneEventApplicationInfoRequest);
+	}
+	@PostMapping("/totalEvent")
+	public TotalEventApplicationInfoResponse getTotalEventApplicationInfo(
+			@RequestBody TotalEventApplicationInfoRequest totalEventApplicationInfoRequest) {
+		return eventApplicationInfoService.getTotalEventApplicationInfo(totalEventApplicationInfoRequest);
 	}
 }
