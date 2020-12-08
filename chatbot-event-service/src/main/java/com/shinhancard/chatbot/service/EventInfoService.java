@@ -57,19 +57,18 @@ public class EventInfoService {
 		}
 
 		for (EventManage eventManage : eventManages) {
-			if (isTimeRight(eventManage, timeClassification) && isTarget(eventManage, clnn)
-					&& isChannelRight(eventManage, channel)) {
+			if (isTimeRight(eventManage, timeClassification) && isTarget(eventManage, clnn) && isChannelRight(eventManage, channel)) {
 				eventInfoResponse.addEventInfo(new EventInfo(eventManage));
 			}
 		}
 
 		return eventInfoResponse;
 	}
-
+	
 	public Boolean isChannelRight(EventManage eventManage, String channel) {
 		Boolean result = false;
 		if (StringUtils.isEmpty(channel)) {
-			result = true;
+			result =  true;
 		}
 
 		if (eventManage.getProperties().contains(PropertyCode.TARGET)) {

@@ -50,9 +50,21 @@ public class EventApplicationService {
 	private final EventManageRepository eventManageRepository;
 	private final EventTargetRepository eventTargetRepository;
 
+<<<<<<< HEAD
 	public List<EventApplication> getEvents() {
 		List<EventApplication> eventApplications = eventApplicationRepository.findAll();
 		return eventApplications;
+=======
+	public List<EventApplicationResponse> getEvents() {
+		List<EventApplication> eventApplications = eventApplicationRepository.findAll(); 
+		List<EventApplicationResponse> eventApplicationResponses = new ArrayList<EventApplicationResponse>();
+		for(EventApplication eventApplication : eventApplications) {
+			eventApplicationResponses.add(modelMapper.map(eventApplication, EventApplicationResponse.class));	
+		}	
+		
+		//branch test
+		return eventApplicationResponses;
+>>>>>>> branch 'develop' of https://github.com/Seokheelee-11/chatbot-event-service.git
 	}
 
 	@Transactional(readOnly = true)
