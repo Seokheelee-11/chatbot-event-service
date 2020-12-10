@@ -2,6 +2,8 @@ package com.shinhancard.chatbot.domain;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.StringUtils;
+
 import lombok.Data;
 
 @Data
@@ -20,7 +22,7 @@ public class Reward {
 	public RewardInfo getInfoByRewardName(String rewardName) {
 		RewardInfo resultRewardInfo = new RewardInfo();
 		for(RewardInfo rewardInfo : this.infoes) {
-			if(rewardInfo.getName().equals(rewardName)) {
+			if(StringUtils.equals(rewardName, rewardInfo.getName())) {
 				resultRewardInfo = rewardInfo;
 				break;
 			}

@@ -9,10 +9,8 @@ import org.springframework.util.StringUtils;
 
 import com.shinhancard.chatbot.domain.ApplicationInfo;
 import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.dto.request.EventApplicationInfoRequest;
 import com.shinhancard.chatbot.dto.request.OneEventApplicationInfoRequest;
 import com.shinhancard.chatbot.dto.request.TotalEventApplicationInfoRequest;
-import com.shinhancard.chatbot.dto.response.EventApplicationInfoResponse;
 import com.shinhancard.chatbot.dto.response.OneEventApplicationInfoResponse;
 import com.shinhancard.chatbot.dto.response.TotalEventApplicationInfoResponse;
 import com.shinhancard.chatbot.entity.EventApplication;
@@ -49,14 +47,6 @@ public class EventApplicationInfoService {
 		return totalEventApplicationInfoResponse;
 	}
 
-	public EventApplicationInfoResponse getEventApplicationInfo(
-			EventApplicationInfoRequest eventApplicationInfoRequest) {
-		EventApplicationInfoResponse eventApplicationInfoResponse = new EventApplicationInfoResponse();
-
-		eventApplicationInfoResponse = mappingEventApplicationInfo(eventApplicationInfoRequest);
-
-		return eventApplicationInfoResponse;
-	}
 
 	public OneEventApplicationInfoResponse mappingOneEventApplicationInfo(
 			OneEventApplicationInfoRequest oneEventApplicationInfoRequest) {
@@ -107,6 +97,7 @@ public class EventApplicationInfoService {
 								new ApplicationInfo(findEventApplication, findEventManage, channel));
 					}
 				}
+				
 			}
 		}
 		return totalEventApplicationInfoResponse;
@@ -114,41 +105,4 @@ public class EventApplicationInfoService {
 
 	
 	
-	public EventApplicationInfoResponse mappingEventApplicationInfo(
-			EventApplicationInfoRequest eventApplicationInfoRequest) {
-		EventApplicationInfoResponse eventApplicationInfoResponse = new EventApplicationInfoResponse();
-
-		String eventId = eventApplicationInfoRequest.getEventId();
-		String clnn = eventApplicationInfoRequest.getClnn();
-		String channel = eventApplicationInfoRequest.getChannel();
-
-		List<EventApplication> findEventApplications = new ArrayList<>();
-		eventApplicationInfoResponse.setClnn(clnn);
-
-		if (StringUtils.isEmpty(eventId)) {
-			findEventApplications = eventApplicationRepository.findAllByClnn(clnn);
-		} else {
-			findEventApplications = eventApplicationRepository.findAllByEventIdAndClnn(eventId, clnn);
-		}
-
-		if (findEventApplications != null) {
-			for (EventApplication findEventApplication : findEventApplications) {
-				String findEventId = findEventApplication.getEventId();
-				EventManage findEventManage = eventManageRepository.findOneByEventId(findEventId);
-
-				if (StringUtils.isEmpty(channel)) {
-					eventApplicationInfoResponse
-							.addApplicationInfo(new ApplicationInfo(findEventApplication, findEventManage));
-				} else {
-					if (findEventApplication.getApplicationLogs(channel).isEmpty()) {
-					} else {
-						eventApplicationInfoResponse.addApplicationInfo(
-								new ApplicationInfo(findEventApplication, findEventManage, channel));
-					}
-				}
-			}
-		}
-
-		return eventApplicationInfoResponse;
-	}
 }
