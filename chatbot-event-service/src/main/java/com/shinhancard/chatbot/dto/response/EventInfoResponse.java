@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.TimeClassificationCode;
 
 import lombok.Data;
 
 @Data
 public class EventInfoResponse {
-	// 결과메세지
-	private ResultCode resultCode;
-	private String resultMessage;
+
+	// 결과메세지	
+	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
 
 	private String eventId;
 	private String clnn;
@@ -24,5 +24,5 @@ public class EventInfoResponse {
 	public void addEventInfo(EventInfo eventInfo) {
 		this.eventInfoes.add(eventInfo);
 	}
-	
+
 }

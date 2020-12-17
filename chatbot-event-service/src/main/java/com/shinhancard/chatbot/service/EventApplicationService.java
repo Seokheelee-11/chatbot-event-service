@@ -25,6 +25,7 @@ import com.shinhancard.chatbot.domain.PropertyCode;
 import com.shinhancard.chatbot.domain.Response;
 import com.shinhancard.chatbot.domain.ResponseInfo;
 import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.Reward;
 import com.shinhancard.chatbot.domain.RewardCode;
 import com.shinhancard.chatbot.domain.RewardInfo;
@@ -204,8 +205,8 @@ public class EventApplicationService {
 	public EventApplicationResponse setEventApplicationResponse(EventManage eventManage, ResultCode resultCode,
 			EventApplication eventApplication) {
 		EventApplicationResponse eventApplicationResponse = new EventApplicationResponse();
-
-		eventApplicationResponse.setResultCodeAndMessage(resultCode);
+		eventApplicationResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+//		eventApplicationResponse.setResultCodeAndMessage(resultCode);
 		if (resultCode.isSuccess()) {
 			eventApplicationResponse.setClnn(eventApplication.getClnn());
 			eventApplicationResponse.setEventInfo(new EventInfo(eventManage));

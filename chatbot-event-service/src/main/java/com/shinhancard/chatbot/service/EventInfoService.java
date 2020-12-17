@@ -11,6 +11,8 @@ import org.springframework.util.StringUtils;
 
 import com.shinhancard.chatbot.domain.EventInfo;
 import com.shinhancard.chatbot.domain.PropertyCode;
+import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.TimeClassificationCode;
 import com.shinhancard.chatbot.dto.request.EventInfoRequest;
 import com.shinhancard.chatbot.dto.response.EventInfoResponse;
@@ -40,7 +42,7 @@ public class EventInfoService {
 
 	public EventInfoResponse mappingEventInfo(EventInfoRequest eventInfoRequest) {
 		EventInfoResponse eventInfoResponse = new EventInfoResponse();
-
+		ResultCode resultCode = ResultCode.FAILED;
 		String eventId = eventInfoRequest.getEventId();
 		String clnn = eventInfoRequest.getClnn();
 		String channel = eventInfoRequest.getChannel();
@@ -59,10 +61,11 @@ public class EventInfoService {
 
 		for (EventManage eventManage : eventManages) {
 			if (isTimeRight(eventManage, timeClassification) && isTarget(eventManage, clnn) && isChannelRight(eventManage, channel)) {
+				resultCode = ResultCode.SUCCESS;
 				eventInfoResponse.addEventInfo(new EventInfo(eventManage));
 			}
 		}
-
+		eventInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
 		return eventInfoResponse;
 	}
 	

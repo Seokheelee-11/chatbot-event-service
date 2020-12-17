@@ -5,16 +5,16 @@ import java.util.List;
 
 import com.shinhancard.chatbot.domain.EventApplicationLog;
 import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.ResultCode;
+import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.entity.EventApplication;
 
 import lombok.Data;
 
 @Data
 public class OneEventApplicationInfoResponse {
-	// 결과메세지
-	private ResultCode resultCode;
-	private String resultMessage;
+	// 결과메세지	
+	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
+	
 	private String clnn;
 	private EventInfo eventInfo = new EventInfo();
 	private List<EventApplicationLog> eventApplicationLogs = new ArrayList<>();
@@ -30,6 +30,7 @@ public class OneEventApplicationInfoResponse {
 		this.eventApplicationLogs = eventApplication.getApplicationLogs(channel);
 	}
 	
+
 
 	
 }
