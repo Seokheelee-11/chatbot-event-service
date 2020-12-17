@@ -106,7 +106,4 @@ public class EventApplicationInfoService {
 		totalEventApplicationInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
 		return totalEventApplicationInfoResponse;
 	}
-
-	
-	
 }
