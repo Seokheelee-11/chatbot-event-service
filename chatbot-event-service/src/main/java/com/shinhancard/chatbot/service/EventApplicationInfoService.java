@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.shinhancard.chatbot.domain.ApplicationInfo;
@@ -62,7 +63,6 @@ public class EventApplicationInfoService {
 		oneEventApplicationInfoResponse.setClnn(clnn);
 		findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
 		if (findEventApplication != null) {
-			resultCode = ResultCode.SUCCESS;			
 			EventManage findEventManage = eventManageRepository.findOneByEventId(eventId);
 			oneEventApplicationInfoResponse.setEventInfo(new EventInfo(findEventManage));
 			if (StringUtils.isEmpty(channel)) {
@@ -70,6 +70,10 @@ public class EventApplicationInfoService {
 			} else {
 				oneEventApplicationInfoResponse.setEventApplicationLogs(findEventApplication,channel);
 			}
+			
+			if(!CollectionUtils.isEmpty(oneEventApplicationInfoResponse.getEventApplicationLogs())) {
+				resultCode = ResultCode.SUCCESS;
+			}				
 		}
 		oneEventApplicationInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
 		return oneEventApplicationInfoResponse;
@@ -87,16 +91,18 @@ public class EventApplicationInfoService {
 		totalEventApplicationInfoResponse.setClnn(clnn);
 		findEventApplications = eventApplicationRepository.findAllByClnn(clnn);
 		if (findEventApplications != null) {
-			resultCode = ResultCode.SUCCESS;
+			
 			for (EventApplication findEventApplication : findEventApplications) {
 				String findEventId = findEventApplication.getEventId();
 				EventManage findEventManage = eventManageRepository.findOneByEventId(findEventId);
 				if (StringUtils.isEmpty(channel)) {
+					resultCode = ResultCode.SUCCESS;
 					totalEventApplicationInfoResponse
 							.addApplicationInfo(new ApplicationInfo(findEventApplication, findEventManage));
 				} else {
 					if (findEventApplication.getApplicationLogs(channel).isEmpty()) {
 					} else {
+						resultCode = ResultCode.SUCCESS;
 						totalEventApplicationInfoResponse.addApplicationInfo(
 								new ApplicationInfo(findEventApplication, findEventManage, channel));
 					}

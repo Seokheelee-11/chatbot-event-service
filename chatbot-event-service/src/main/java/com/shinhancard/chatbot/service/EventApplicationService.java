@@ -11,6 +11,7 @@ import java.util.Random;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@EnableRetry
 @Slf4j
 public class EventApplicationService {
 	@Autowired
@@ -71,6 +73,7 @@ public class EventApplicationService {
 		Pair<ResultCode, EventApplication> pair;
 		ResultCode resultCode = ResultCode.SUCCESS;
 
+		
 		if (eventManage != null) {
 			properties = eventManage.getProperties();
 		}
