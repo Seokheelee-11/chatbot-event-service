@@ -1,5 +1,7 @@
 package com.shinhancard.chatbot.domain;
 
+import com.shinhancard.chatbot.config.EventException;
+
 import lombok.Data;
 
 @Data
@@ -15,8 +17,12 @@ public class ResultCodeMessage {
 	}
 	
 	public ResultCodeMessage() {
-		this.resultCode = ResultCode.FAILED;
+		this.resultCode = ResultCode.SUCCESS;
 		this.resultMessage = resultCode.getResultMessage();
+	}
+	
+	public ResultCodeMessage(EventException e) {
+		
 	}
 
 

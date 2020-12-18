@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.domain.EventInfo;
 import com.shinhancard.chatbot.domain.PropertyCode;
 import com.shinhancard.chatbot.domain.ResultCode;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.TimeClassificationCode;
 import com.shinhancard.chatbot.dto.request.EventInfoRequest;
 import com.shinhancard.chatbot.dto.response.EventInfoResponse;
@@ -32,7 +32,7 @@ public class EventInfoService {
 	private final EventManageRepository eventManageRepository;
 	private final EventTargetRepository eventTargetRepository;
 
-	public EventInfoResponse getEventInfo(EventInfoRequest eventInfoRequest) {
+	public EventInfoResponse getEventInfo(EventInfoRequest eventInfoRequest) throws EventException {
 		EventInfoResponse eventInfoResponse = new EventInfoResponse();
 
 		eventInfoResponse = mappingEventInfo(eventInfoRequest);
@@ -40,9 +40,9 @@ public class EventInfoService {
 		return eventInfoResponse;
 	}
 
-	public EventInfoResponse mappingEventInfo(EventInfoRequest eventInfoRequest) {
+	public EventInfoResponse mappingEventInfo(EventInfoRequest eventInfoRequest) throws EventException {
 		EventInfoResponse eventInfoResponse = new EventInfoResponse();
-		ResultCode resultCode = ResultCode.FAILED;
+		
 		String eventId = eventInfoRequest.getEventId();
 		String clnn = eventInfoRequest.getClnn();
 		String channel = eventInfoRequest.getChannel();
@@ -61,18 +61,20 @@ public class EventInfoService {
 
 		for (EventManage eventManage : eventManages) {
 			if (isTimeRight(eventManage, timeClassification) && isTarget(eventManage, clnn) && isChannelRight(eventManage, channel)) {
-				resultCode = ResultCode.SUCCESS;
 				eventInfoResponse.addEventInfo(new EventInfo(eventManage));
 			}
 		}
-		eventInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+		if(CollectionUtils.isEmpty(eventInfoResponse.getEventInfoes())){
+			throw new EventException(ResultCode.FAILED);
+		}
+		
 		return eventInfoResponse;
 	}
-	
+
 	public Boolean isChannelRight(EventManage eventManage, String channel) {
 		Boolean result = false;
 		if (StringUtils.isEmpty(channel)) {
-			result =  true;
+			result = true;
 		}
 
 		if (eventManage.getProperties().contains(PropertyCode.TARGET)) {

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.dto.request.EventInfoRequest;
 import com.shinhancard.chatbot.dto.response.EventInfoResponse;
 import com.shinhancard.chatbot.service.EventInfoService;
@@ -22,7 +23,7 @@ public class EventInfoController {
 
 	@PostMapping("/totalEvent")
 	public EventInfoResponse getEventInfo(
-			@RequestBody EventInfoRequest eventInfoRequest) {
+			@RequestBody EventInfoRequest eventInfoRequest) throws EventException {
 		return eventInfoService.getEventInfo(eventInfoRequest);
 	}
 }

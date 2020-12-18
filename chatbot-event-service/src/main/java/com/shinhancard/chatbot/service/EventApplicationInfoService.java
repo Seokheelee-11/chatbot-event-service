@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.domain.ApplicationInfo;
 import com.shinhancard.chatbot.domain.EventInfo;
 import com.shinhancard.chatbot.domain.ResultCode;
@@ -33,26 +34,25 @@ public class EventApplicationInfoService {
 	private final EventApplicationRepository eventApplicationRepository;
 
 	public OneEventApplicationInfoResponse getOneEventApplicationInfo(
-			OneEventApplicationInfoRequest oneEventApplicationInfoRequest) {
+			OneEventApplicationInfoRequest oneEventApplicationInfoRequest) throws EventException {
 		OneEventApplicationInfoResponse oneEventApplicationInfoResponse = new OneEventApplicationInfoResponse();
 
 		oneEventApplicationInfoResponse = mappingOneEventApplicationInfo(oneEventApplicationInfoRequest);
 
 		return oneEventApplicationInfoResponse;
 	}
-	
+
 	public TotalEventApplicationInfoResponse getTotalEventApplicationInfo(
-			TotalEventApplicationInfoRequest totalEventApplicationInfoRequest) {
+			TotalEventApplicationInfoRequest totalEventApplicationInfoRequest) throws EventException {
 		TotalEventApplicationInfoResponse totalEventApplicationInfoResponse = new TotalEventApplicationInfoResponse();
-		
+
 		totalEventApplicationInfoResponse = mappingTotalEventApplicationInfo(totalEventApplicationInfoRequest);
-		
+
 		return totalEventApplicationInfoResponse;
 	}
 
-
 	public OneEventApplicationInfoResponse mappingOneEventApplicationInfo(
-			OneEventApplicationInfoRequest oneEventApplicationInfoRequest) {
+			OneEventApplicationInfoRequest oneEventApplicationInfoRequest) throws EventException {
 		OneEventApplicationInfoResponse oneEventApplicationInfoResponse = new OneEventApplicationInfoResponse();
 
 		String eventId = oneEventApplicationInfoRequest.getEventId();
@@ -68,48 +68,46 @@ public class EventApplicationInfoService {
 			if (StringUtils.isEmpty(channel)) {
 				oneEventApplicationInfoResponse.setEventApplicationLogs(findEventApplication);
 			} else {
-				oneEventApplicationInfoResponse.setEventApplicationLogs(findEventApplication,channel);
+				oneEventApplicationInfoResponse.setEventApplicationLogs(findEventApplication, channel);
 			}
-			
-			if(!CollectionUtils.isEmpty(oneEventApplicationInfoResponse.getEventApplicationLogs())) {
-				resultCode = ResultCode.SUCCESS;
-			}				
+
+			if (CollectionUtils.isEmpty(oneEventApplicationInfoResponse.getEventApplicationLogs())) {
+				throw new EventException(ResultCode.FAILED);
+			}
 		}
 		oneEventApplicationInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
 		return oneEventApplicationInfoResponse;
 	}
 
-	
 	public TotalEventApplicationInfoResponse mappingTotalEventApplicationInfo(
-			TotalEventApplicationInfoRequest totalEventApplicationInfoRequest) {
+			TotalEventApplicationInfoRequest totalEventApplicationInfoRequest) throws EventException {
 		TotalEventApplicationInfoResponse totalEventApplicationInfoResponse = new TotalEventApplicationInfoResponse();
-		
+
 		String clnn = totalEventApplicationInfoRequest.getClnn();
 		String channel = totalEventApplicationInfoRequest.getChannel();
-		ResultCode resultCode = ResultCode.FAILED;
+
 		List<EventApplication> findEventApplications = new ArrayList<>();
 		totalEventApplicationInfoResponse.setClnn(clnn);
 		findEventApplications = eventApplicationRepository.findAllByClnn(clnn);
 		if (findEventApplications != null) {
-			
 			for (EventApplication findEventApplication : findEventApplications) {
 				String findEventId = findEventApplication.getEventId();
 				EventManage findEventManage = eventManageRepository.findOneByEventId(findEventId);
 				if (StringUtils.isEmpty(channel)) {
-					resultCode = ResultCode.SUCCESS;
 					totalEventApplicationInfoResponse
 							.addApplicationInfo(new ApplicationInfo(findEventApplication, findEventManage));
 				} else {
 					if (findEventApplication.getApplicationLogs(channel).isEmpty()) {
 					} else {
-						resultCode = ResultCode.SUCCESS;
 						totalEventApplicationInfoResponse.addApplicationInfo(
 								new ApplicationInfo(findEventApplication, findEventManage, channel));
 					}
 				}
 			}
 		}
-		totalEventApplicationInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+		if (CollectionUtils.isEmpty(totalEventApplicationInfoResponse.getApplicationInfoes())) {
+			throw new EventException(ResultCode.FAILED);
+		}
 		return totalEventApplicationInfoResponse;
 	}
 }

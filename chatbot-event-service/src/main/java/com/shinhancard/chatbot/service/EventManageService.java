@@ -8,8 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.domain.ResultCode;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.Reward;
 import com.shinhancard.chatbot.domain.RewardCode;
 import com.shinhancard.chatbot.domain.RewardInfo;
@@ -47,7 +47,7 @@ public class EventManageService {
 		return eventManageResponse;
 	}
 
-	public EventManageResponse registEvent(EventManageRequest eventManageRequest) {
+	public EventManageResponse registEvent(EventManageRequest eventManageRequest) throws EventException {
 		EventManage eventManage = mappingEventManage(eventManageRequest);
 		EventManage findEventManage = eventManageRepository.findOneByEventId(eventManageRequest.getEventId());
 		EventManageResponse eventManageResponse = new EventManageResponse();
@@ -69,19 +69,19 @@ public class EventManageService {
 		eventManageRepository.deleteById(id);
 	}
 
-	public EventManageResponse mappingResponseAndSave(EventManage eventManage) {
+	public EventManageResponse mappingResponseAndSave(EventManage eventManage) throws EventException {
 		LocalDateTime startDate = eventManage.getDefaultInfo().getStartDate();
 		LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
 		EventManageResponse eventManageResponse = new EventManageResponse();
-		ResultCode resultCode = ResultCode.FAILED;
 		if (startDate.isBefore(endDate) && checkRewardConfig(eventManage)) {
 //TODO :: 나중에 서비스가 커지면 entity를 하나 더 만들거임. 신청 별로 한줄로 받을 수 있게, 그때 reward id를 넣어서 서로 join할 수 있게 만들거임
 //			eventManage = setRewardId(eventManage);
-			resultCode = ResultCode.SUCCESS;
 			eventManageRepository.save(eventManage);
 			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
+		} else {
+			throw new EventException(ResultCode.FAILED);
 		}
-		eventManageResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+
 		return eventManageResponse;
 	}
 

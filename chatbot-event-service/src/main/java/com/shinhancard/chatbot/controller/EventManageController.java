@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.dto.request.EventManageRequest;
 import com.shinhancard.chatbot.dto.response.EventManageResponse;
 import com.shinhancard.chatbot.service.EventManageService;
@@ -38,7 +39,7 @@ public class EventManageController {
 	}
 	
 	@PostMapping
-	public EventManageResponse registEvent(@RequestBody EventManageRequest eventManageRequest) {
+	public EventManageResponse registEvent(@RequestBody EventManageRequest eventManageRequest) throws EventException {
 		log.info("regist request {}", eventManageRequest.toString());
 		return eventManageService.registEvent(eventManageRequest);
 	}
@@ -52,4 +53,5 @@ public class EventManageController {
 	public void deleteEvent(@PathVariable String id) {
 		eventManageService.deleteEvent(id);
 	}
+
 }

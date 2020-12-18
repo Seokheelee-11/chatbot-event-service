@@ -7,8 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.shinhancard.chatbot.domain.ResultCode;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.dto.request.EventTargetRequest;
 import com.shinhancard.chatbot.dto.response.EventTargetResponse;
 import com.shinhancard.chatbot.entity.EventTarget;
@@ -40,20 +38,16 @@ public class EventTargetService {
 	public EventTargetResponse registTarget(EventTargetRequest eventTargetRequest) {
 		EventTarget eventTarget = modelMapper.map(eventTargetRequest, EventTarget.class);
 		eventTargetRepository.save(eventTarget);
-		EventTargetResponse eventTargetResponse = modelMapper.map(eventTarget, EventTargetResponse.class);
-		ResultCode resultCode = ResultCode.FAILED;
-		resultCode = ResultCode.SUCCESS;
-		eventTargetResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+		EventTargetResponse eventTargetResponse = new EventTargetResponse();
+		eventTargetResponse = modelMapper.map(eventTarget, EventTargetResponse.class);
 		return eventTargetResponse;
 	}
 
 	public EventTargetResponse updateTarget(String id, EventTargetRequest eventTargetRequest) {
 		EventTarget eventTarget = mappingEventTargetAndId(eventTargetRequest, id);
 		eventTargetRepository.save(eventTarget);
-		EventTargetResponse eventTargetResponse = modelMapper.map(eventTarget, EventTargetResponse.class);
-		ResultCode resultCode = ResultCode.FAILED;
-		resultCode = ResultCode.SUCCESS;
-		eventTargetResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+		EventTargetResponse eventTargetResponse = new EventTargetResponse();
+		eventTargetResponse = modelMapper.map(eventTarget, EventTargetResponse.class);
 		return eventTargetResponse;
 	}
 
