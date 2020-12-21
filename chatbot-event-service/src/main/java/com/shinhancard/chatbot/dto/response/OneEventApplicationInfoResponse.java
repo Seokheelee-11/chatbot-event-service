@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.shinhancard.chatbot.domain.EventApplicationLog;
 import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.entity.EventApplication;
 
 import lombok.Data;
@@ -13,7 +12,7 @@ import lombok.Data;
 @Data
 public class OneEventApplicationInfoResponse {
 	// 결과메세지	
-	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
+//	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
 	
 	private String clnn;
 	private EventInfo eventInfo = new EventInfo();

@@ -33,5 +33,7 @@ public class EventApplicationInfoController {
 			@RequestBody TotalEventApplicationInfoRequest totalEventApplicationInfoRequest) throws EventException {
 		return eventApplicationInfoService.getTotalEventApplicationInfo(totalEventApplicationInfoRequest);
 	}
+	
+
 
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.shinhancard.chatbot.domain.EventInfo;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.TimeClassificationCode;
 
 import lombok.Data;
@@ -13,7 +12,7 @@ import lombok.Data;
 public class EventInfoResponse {
 
 	// 결과메세지	
-	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
+//	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
 
 	private String eventId;
 	private String clnn;

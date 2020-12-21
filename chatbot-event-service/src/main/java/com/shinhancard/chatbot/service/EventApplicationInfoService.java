@@ -12,7 +12,6 @@ import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.domain.ApplicationInfo;
 import com.shinhancard.chatbot.domain.EventInfo;
 import com.shinhancard.chatbot.domain.ResultCode;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.dto.request.OneEventApplicationInfoRequest;
 import com.shinhancard.chatbot.dto.request.TotalEventApplicationInfoRequest;
 import com.shinhancard.chatbot.dto.response.OneEventApplicationInfoResponse;
@@ -58,7 +57,7 @@ public class EventApplicationInfoService {
 		String eventId = oneEventApplicationInfoRequest.getEventId();
 		String clnn = oneEventApplicationInfoRequest.getClnn();
 		String channel = oneEventApplicationInfoRequest.getChannel();
-		ResultCode resultCode = ResultCode.FAILED;
+//		ResultCode resultCode = ResultCode.FAILED;
 		EventApplication findEventApplication = new EventApplication();
 		oneEventApplicationInfoResponse.setClnn(clnn);
 		findEventApplication = eventApplicationRepository.findOneByEventIdAndClnn(eventId, clnn);
@@ -70,12 +69,11 @@ public class EventApplicationInfoService {
 			} else {
 				oneEventApplicationInfoResponse.setEventApplicationLogs(findEventApplication, channel);
 			}
-
-			if (CollectionUtils.isEmpty(oneEventApplicationInfoResponse.getEventApplicationLogs())) {
-				throw new EventException(ResultCode.FAILED);
-			}
 		}
-		oneEventApplicationInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
+		if (CollectionUtils.isEmpty(oneEventApplicationInfoResponse.getEventApplicationLogs())) {
+			throw new EventException(ResultCode.FAILED);
+		}
+//		oneEventApplicationInfoResponse.setResultCodeMessage(new ResultCodeMessage(resultCode));
 		return oneEventApplicationInfoResponse;
 	}
 

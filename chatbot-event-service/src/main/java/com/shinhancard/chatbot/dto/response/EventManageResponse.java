@@ -4,7 +4,6 @@ import com.shinhancard.chatbot.domain.DefaultInfo;
 import com.shinhancard.chatbot.domain.OverLap;
 import com.shinhancard.chatbot.domain.Quiz;
 import com.shinhancard.chatbot.domain.Response;
-import com.shinhancard.chatbot.domain.ResultCodeMessage;
 import com.shinhancard.chatbot.domain.Reward;
 import com.shinhancard.chatbot.domain.Target;
 
@@ -15,7 +14,7 @@ import lombok.Data;
 public class EventManageResponse {
 
 	// 결과메세지	
-	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
+//	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
 	
 	private String eventId;
 	private DefaultInfo defaultInfo = new DefaultInfo();
