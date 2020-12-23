@@ -2,9 +2,9 @@ package com.shinhancard.chatbot.domain;
 
 public enum PropertyCode {
 	
-	DEFAULT,
+//	DEFAULT,
 	TARGET,
-	RESPONSE,
+//	RESPONSE,
 	OVERLAP,
 	QUIZ,
 	REWARD;

@@ -9,6 +9,6 @@ import lombok.Data;
 public class Response {
 //	private Boolean isProperty;
 	private String successMessage;
-	private String failureMessage;
+	
 	private Map<String,String> infoes = new HashMap<String, String>();	
 }
