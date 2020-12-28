@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
 import com.shinhancard.chatbot.dto.response.EventApplicationResponse;
 import com.shinhancard.chatbot.entity.EventApplication;
@@ -25,7 +26,7 @@ public class EventApplicationController {
 	private final EventApplicationService eventApplicationService;
 	
 	@PostMapping
-	public EventApplicationResponse applicationEvent(@RequestBody EventApplicationRequest eventApplicationRequest) {
+	public EventApplicationResponse applicationEvent(@RequestBody EventApplicationRequest eventApplicationRequest) throws EventException {
 		log.info("regist request {}", eventApplicationRequest.toString());
 		EventApplicationResponse eventApplicationResponse;
 		eventApplicationResponse = eventApplicationService.applicationEvent(eventApplicationRequest);

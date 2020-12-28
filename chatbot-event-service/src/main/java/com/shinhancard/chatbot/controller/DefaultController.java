@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shinhancard.chatbot.config.EventException;
 import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
 import com.shinhancard.chatbot.dto.response.EventApplicationResponse;
 import com.shinhancard.chatbot.service.EventApplicationService;
@@ -28,7 +29,7 @@ public class DefaultController {
 	
 	
 	@GetMapping("test")
-	public void probTest() {
+	public void probTest() throws EventException {
 		EventApplicationRequest eventApplicationRequest = new EventApplicationRequest();
 		EventApplicationResponse eventApplicationResponse = new EventApplicationResponse();
 		String clnn = "P000000030";
