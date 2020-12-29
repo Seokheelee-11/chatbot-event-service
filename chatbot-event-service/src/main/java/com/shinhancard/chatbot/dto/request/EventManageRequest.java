@@ -1,5 +1,8 @@
 package com.shinhancard.chatbot.dto.request;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import com.shinhancard.chatbot.domain.DefaultInfo;
 import com.shinhancard.chatbot.domain.OverLap;
 import com.shinhancard.chatbot.domain.Quiz;
@@ -13,6 +16,7 @@ import lombok.Data;
 @Data
 public class EventManageRequest {
 
+	@NotEmpty @NotBlank
 	private String eventId;
 	private DefaultInfo defaultInfo = new DefaultInfo();
 	private Target target = new Target();

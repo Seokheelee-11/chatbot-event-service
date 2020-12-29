@@ -65,7 +65,7 @@ public class EventApplicationService {
 		return eventApplication;
 	}
 
-	@Transactional
+
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest)
 			throws EventException {
 
@@ -84,7 +84,7 @@ public class EventApplicationService {
 	
 	
 	
-
+	@Transactional(isolation = Isolation.SERIALIZABLE)
 	public EventApplication getEventApplicationWithConcurrencyControl(EventApplicationRequest eventApplicationRequest)
 			throws EventException {
 		EventApplication eventApplication = getEventApplication(eventApplicationRequest);
@@ -93,9 +93,10 @@ public class EventApplicationService {
 		return eventApplication;
 	}
 
+	@Transactional(isolation = Isolation.SERIALIZABLE, readOnly = true, propagation = Propagation.MANDATORY)
 	public EventApplication getEventApplication(EventApplicationRequest eventApplicationRequest) throws EventException {
 		EventManage eventManage = eventManageRepository.findOneByEventId(eventApplicationRequest.getEventId());
-		EventApplicationLog eventApplicationLog = new EventApplicationLog();
+		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
 		EventApplication eventApplication = new EventApplication();
 
 		canApplyCheck(eventApplicationLog, eventManage, eventApplicationRequest);
@@ -107,8 +108,13 @@ public class EventApplicationService {
 		return eventApplication;
 	}
 
+
 	public void canApplyCheck(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
+		if (eventManage == null) {
+			throw new EventException(ResultCode.FAILED_CANT_FIND_EVENTID);
+		}
+		
 		if (isCheckFindAll(eventManage)) {
 			canApplyCheckFindAll(eventApplicationLog, eventManage, eventApplicationRequest);
 		} else {
@@ -138,13 +144,9 @@ public class EventApplicationService {
 		return result;
 	}
 
-	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	
 	public void canApplyCheckFindAll(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
-
-		if (eventManage == null) {
-			throw new EventException(ResultCode.FAILED_CANT_FIND_EVENTID);
-		}
 
 		if (!canApplyDate(eventManage, eventApplicationLog)) {
 			throw new EventException(ResultCode.FAILED_NO_APPLY_DATE);
@@ -171,12 +173,9 @@ public class EventApplicationService {
 		}
 	}
 
-	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	
 	public void canApplyCheckFindSome(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
-		if (eventManage == null) {
-			throw new EventException(ResultCode.FAILED_CANT_FIND_EVENTID);
-		}
 
 		if (!canApplyDate(eventManage, eventApplicationLog)) {
 			throw new EventException(ResultCode.FAILED_NO_APPLY_DATE);
@@ -221,7 +220,8 @@ public class EventApplicationService {
 		return result;
 	}
 
-	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+
+	
 	public EventApplicationLog getApplicationLog(EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) {
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
@@ -235,7 +235,7 @@ public class EventApplicationService {
 		return eventApplicationLog;
 	}
 
-	@Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+	
 	public EventApplication setEventApplication(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) {
 
@@ -523,6 +523,7 @@ public class EventApplicationService {
 		return localDateTime.withDayOfYear(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 	}
 
+	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
 	public Integer getOverLapOrder(EventApplicationRequest eventApplicationRequest) {
 		Integer result = 1;
 
@@ -551,7 +552,7 @@ public class EventApplicationService {
 		}
 		return result;
 	}
-
+	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
 	public String getReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest) {
 		String result = "";
 		Reward reward = eventManage.getReward();
@@ -564,6 +565,7 @@ public class EventApplicationService {
 		return result;
 	}
 
+	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
 	public String getRewardName(Reward reward, List<EventApplication> eventApplications) {
 		String rewardName = "";
 		Map<String, Integer> manageRewardLimit = setManageRewardLimit(reward, eventApplications);
@@ -622,9 +624,11 @@ public class EventApplicationService {
 
 	public String getRewardFCFS(Map<String, Integer> manageRewardLimit, Map<String, Integer> appliedRewardLimit) {
 		String result = "";
+
 		for (String rewardName : manageRewardLimit.keySet()) {
 			if (manageRewardLimit.get(rewardName) == 0) {
 				result = rewardName;
+				break;
 			} else if (manageRewardLimit.get(rewardName) > appliedRewardLimit.get(rewardName)) {
 				result = rewardName;
 				break;

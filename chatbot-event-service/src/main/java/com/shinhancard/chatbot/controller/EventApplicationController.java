@@ -2,6 +2,8 @@ package com.shinhancard.chatbot.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +28,7 @@ public class EventApplicationController {
 	private final EventApplicationService eventApplicationService;
 	
 	@PostMapping
-	public EventApplicationResponse applicationEvent(@RequestBody EventApplicationRequest eventApplicationRequest) throws EventException {
+	public EventApplicationResponse applicationEvent(@RequestBody @Valid EventApplicationRequest eventApplicationRequest) throws EventException {
 		log.info("regist request {}", eventApplicationRequest.toString());
 		EventApplicationResponse eventApplicationResponse;
 		eventApplicationResponse = eventApplicationService.applicationEvent(eventApplicationRequest);

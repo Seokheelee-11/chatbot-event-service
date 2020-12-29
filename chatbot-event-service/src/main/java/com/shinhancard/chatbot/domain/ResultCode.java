@@ -17,7 +17,7 @@ public enum ResultCode {
 //	FAILED_TIME_OVERLAP("12", "이벤트 신청이 불가합니다. 다음달(내일) 다시 신청해주세요"), 
 //	FAILED_ORDERCOUNT_OVER("13", "이벤트에 신청 가능한 건수를 초과하였습니다."),
 	FAILED_NO_CORRECT_ANSWER("14", "이벤트 정답이 아닙니다."),
-//	FAILED_DEFAULT_INPUT("15", "입력 값이 잘못되었음"),
+	FAILED_DEFAULT_INPUT("15", "입력 값이 잘못되었음"),
 	FAILED_OVERLAP_VALIDATE("16", "overLap Validation Failed"),
 	FAILED_GET_REWARD("17", "reward를 받을 수 없습니다."),
 	FAILED_NOT_TARGET("18", "Target이 맞지 않습니다."),

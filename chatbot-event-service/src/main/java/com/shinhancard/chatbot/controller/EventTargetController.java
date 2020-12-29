@@ -2,6 +2,8 @@ package com.shinhancard.chatbot.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +42,7 @@ public class EventTargetController {
 	}
 	
 	@PostMapping
-	public EventTargetResponse registTarget(@RequestBody EventTargetRequest eventTargetRequest) {
+	public EventTargetResponse registTarget(@RequestBody @Valid EventTargetRequest eventTargetRequest) {
 		log.info("regist request {}", eventTargetRequest.toString());
 		return eventTargetService.registTarget(eventTargetRequest);
 	}
