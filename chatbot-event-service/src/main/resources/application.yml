@@ -21,9 +21,9 @@ logging:
 ---
 spring:
  profiles: peer1
- data:
-    mongodb:
-      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+# data:
+#    mongodb:
+#      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
 
 server:
   port: 8080
@@ -33,9 +33,9 @@ server:
 
 spring:
  profiles: peer2
- data:
-    mongodb:
-      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+# data:
+#    mongodb:
+#      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
 
 server:
   port: 8680

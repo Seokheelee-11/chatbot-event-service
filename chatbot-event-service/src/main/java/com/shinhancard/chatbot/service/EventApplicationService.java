@@ -84,7 +84,8 @@ public class EventApplicationService {
 	
 	
 	
-	@Transactional(isolation = Isolation.SERIALIZABLE)
+	@Transactional(value = "transactionManager",isolation = Isolation.READ_COMMITTED)
+//	@Retryable(value = {MongoCommandException.class, MongoException.class}, backoff = @Backoff(delay = 10), maxAttempts = 10)
 	public EventApplication getEventApplicationWithConcurrencyControl(EventApplicationRequest eventApplicationRequest)
 			throws EventException {
 		EventApplication eventApplication = getEventApplication(eventApplicationRequest);
@@ -93,7 +94,7 @@ public class EventApplicationService {
 		return eventApplication;
 	}
 
-	@Transactional(isolation = Isolation.SERIALIZABLE, readOnly = true, propagation = Propagation.MANDATORY)
+	@Transactional(value = "transactionManager",isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
 	public EventApplication getEventApplication(EventApplicationRequest eventApplicationRequest) throws EventException {
 		EventManage eventManage = eventManageRepository.findOneByEventId(eventApplicationRequest.getEventId());
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
@@ -195,7 +196,7 @@ public class EventApplicationService {
 
 	}
 
-	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+	
 	public Boolean canApplyTotalLimit(EventManage eventManage) {
 		Boolean result = true;
 		String eventId = eventManage.getEventId();
@@ -298,7 +299,7 @@ public class EventApplicationService {
 		return result;
 	}
 
-	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
+	
 	public Boolean canApplyTarget(EventManage eventManage, EventApplicationRequest eventApplicationRequest) {
 		Boolean result = true;
 		if (eventManage.getProperties().contains(PropertyCode.TARGET)) {
@@ -523,7 +524,7 @@ public class EventApplicationService {
 		return localDateTime.withDayOfYear(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 	}
 
-	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
+	
 	public Integer getOverLapOrder(EventApplicationRequest eventApplicationRequest) {
 		Integer result = 1;
 
@@ -552,7 +553,7 @@ public class EventApplicationService {
 		}
 		return result;
 	}
-	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
+	
 	public String getReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest) {
 		String result = "";
 		Reward reward = eventManage.getReward();
@@ -565,7 +566,7 @@ public class EventApplicationService {
 		return result;
 	}
 
-	@Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
+	
 	public String getRewardName(Reward reward, List<EventApplication> eventApplications) {
 		String rewardName = "";
 		Map<String, Integer> manageRewardLimit = setManageRewardLimit(reward, eventApplications);
