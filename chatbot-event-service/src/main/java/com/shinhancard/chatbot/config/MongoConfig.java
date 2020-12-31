@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import com.mongodb.ConnectionString;
@@ -19,11 +20,14 @@ import com.mongodb.client.MongoClients;
 @Configuration
 @EnableMongoRepositories(basePackages = "com.shinhancard.chatbot.repository")
 public class MongoConfig extends AbstractMongoClientConfiguration {
-//    @Bean
-//    MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
-//		return new MongoTransactionManager(dbFactory);
-//    }
+	@Value("${spring.data.mongodb.uri}")
+	private String mongodbUri;
 
+	@Value("${spring.data.mongodb.database}")
+	private String mongodbDatabase;
+
+	
+	
 	@Bean
 	MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
 		TransactionOptions transactionOptions = TransactionOptions.builder()
@@ -37,18 +41,23 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 		return "test";
 	}
 
-	@Value("${spring.data.mongodb.uri}")
-	private String mongodbUri;
-
+	
 	@Override
 	public MongoClient mongoClient() {
 		final ConnectionString connectionString = new ConnectionString(mongodbUri);
 		final MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
-				.readConcern(ReadConcern.LINEARIZABLE)
-				.writeConcern(WriteConcern.MAJORITY)
+				.readConcern(ReadConcern.LOCAL)
+				.writeConcern(WriteConcern.ACKNOWLEDGED)
 				.applyConnectionString(connectionString)
 				.build();
 		return MongoClients.create(mongoClientSettings);
+	}
+	
+	
+	
+	@Bean
+	public MongoTemplate mongoTemplate() {
+		return new MongoTemplate(mongoClient(), mongodbDatabase);
 	}
 
 }
