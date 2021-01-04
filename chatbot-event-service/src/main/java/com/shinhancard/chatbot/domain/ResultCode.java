@@ -8,7 +8,7 @@ public enum ResultCode {
 //	FAILED_NO_OVERLAP_INPUT("04", "overLapDateType || overLapDateCount || includeDateTF를 입력해 주세요"),
 //	FAILED_NO_LIMIT_INPUT("05", "limitType || limitInfo를 입력해 주세요"),
 //	FAILED_NO_QUIZANSWER_INPUT("06", "quizAnswer를 입력해 주세요"),
-//	FAILED_EVENTID_OVERLAP("07", "이미 등록된 EventID입니다."),
+	FAILED_EVENTID_OVERLAP("07", "이미 등록된 EventID입니다."),
 //	FAILED_RANDOMPROB_OVER_ONE("07", "RANDOM 확률의 총 합은 1을 넘을 수 없습니다."),
 //	FAILED_NO_CLNN_INPUT("08", "clnn(고객번호)를 입력해주세요"),
 	FAILED_CANT_FIND_EVENTID("09", "등록된 EventID가 아닙니다."),

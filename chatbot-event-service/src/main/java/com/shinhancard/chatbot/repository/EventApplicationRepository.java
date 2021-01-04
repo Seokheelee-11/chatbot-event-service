@@ -6,14 +6,14 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.shinhancard.chatbot.entity.EventApplication;
 
-public interface EventApplicationRepository extends MongoRepository<EventApplication, String>{
+public interface EventApplicationRepository extends MongoRepository<EventApplication, String>, CustomEventApplicationRepository{
 	
 	EventApplication findOneById(String id);
 	List<EventApplication> findAllByEventId(String eventId);
 	List<EventApplication> findAllByClnn(String clnn);
 	List<EventApplication> findAllByEventIdAndClnn(String eventId, String clnn);
 	EventApplication findOneByEventIdAndClnn(String eventId, String clnn);
-	
+	List<EventApplication> findAndModify();
 	
 	
 }

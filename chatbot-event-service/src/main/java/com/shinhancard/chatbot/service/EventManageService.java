@@ -53,8 +53,9 @@ public class EventManageService {
 		EventManageResponse eventManageResponse = new EventManageResponse();
 		if (findEventManage == null) {
 			eventManageResponse = mappingResponseAndSave(eventManage);
+		}else {
+			throw new EventException(ResultCode.FAILED_EVENTID_OVERLAP);
 		}
-
 		return eventManageResponse;
 	}
 
