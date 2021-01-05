@@ -130,6 +130,7 @@ public class EventApplicationService {
 			result = true;
 		}
 		return result;
+		
 	}
 
 	public Boolean isCheckFindAll(EventManage eventManage) {
@@ -137,7 +138,7 @@ public class EventApplicationService {
 		Integer limitApplication = eventManage.getDefaultInfo().getLimitApplication();
 		Integer limitClnn = eventManage.getDefaultInfo().getLimitClnn();
 
-		if (limitApplication != 0 || limitClnn != 0 || eventManage.getProperties().contains(PropertyCode.OVERLAP)) {
+		if (limitApplication != 0 || limitClnn != 0 || eventManage.getProperties().contains(PropertyCode.REWARD)) {
 			result = true;
 		} else {
 			result = false;

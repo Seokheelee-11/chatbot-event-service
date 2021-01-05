@@ -28,6 +28,7 @@ public class EventManageService {
 	@Autowired
 	private ModelMapper modelMapper;
 	private final EventManageRepository eventManageRepository;
+	private final ApplyManageService rewardManageService;
 
 	public List<EventManageResponse> getEvents() {
 		List<EventManage> eventManages = eventManageRepository.findAll();
@@ -53,7 +54,7 @@ public class EventManageService {
 		EventManageResponse eventManageResponse = new EventManageResponse();
 		if (findEventManage == null) {
 			eventManageResponse = mappingResponseAndSave(eventManage);
-		}else {
+		} else {
 			throw new EventException(ResultCode.FAILED_EVENTID_OVERLAP);
 		}
 		return eventManageResponse;
@@ -75,8 +76,9 @@ public class EventManageService {
 		LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
 		EventManageResponse eventManageResponse = new EventManageResponse();
 		if (startDate.isBefore(endDate) && checkRewardConfig(eventManage)) {
-//TODO :: 나중에 서비스가 커지면 entity를 하나 더 만들거임. 신청 별로 한줄로 받을 수 있게, 그때 reward id를 넣어서 서로 join할 수 있게 만들거임
-//			eventManage = setRewardId(eventManage);
+			if (eventManage.getReward().getIsProperty()) {
+				rewardManageService.registApplyManage(eventManage);
+			}
 			eventManageRepository.save(eventManage);
 			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
 		} else {
@@ -111,18 +113,6 @@ public class EventManageService {
 		return result;
 
 	}
-
-	// TODO :: 나중에 서비스가 커지면 entity를 하나 더 만들거임. 신청 별로 한줄로 받을 수 있게, 그때 reward id를 넣어서
-	// 서로 join할 수 있게 만들거임
-//	public EventManage setRewardId(EventManage eventManage) {
-//		for (RewardInfo reward : eventManage.getReward().getInfoes()) {
-//			if (StringUtils.isEmpty(reward.getId())) {
-//				UUID uid = UUID.randomUUID();
-//				reward.setId(uid.toString());
-//			}
-//		}
-//		return eventManage;
-//	}
 
 	public EventManage mappingEventManageAndId(EventManageRequest eventManageRequest, String id) {
 		EventManage eventManage = modelMapper.map(eventManageRequest, EventManage.class);
