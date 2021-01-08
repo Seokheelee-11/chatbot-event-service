@@ -32,9 +32,11 @@ import com.shinhancard.chatbot.domain.RewardCode;
 import com.shinhancard.chatbot.domain.RewardInfo;
 import com.shinhancard.chatbot.dto.request.EventApplicationRequest;
 import com.shinhancard.chatbot.dto.response.EventApplicationResponse;
+import com.shinhancard.chatbot.entity.ApplyManage;
 import com.shinhancard.chatbot.entity.EventApplication;
 import com.shinhancard.chatbot.entity.EventManage;
 import com.shinhancard.chatbot.entity.EventTarget;
+import com.shinhancard.chatbot.repository.ApplyManageRepository;
 import com.shinhancard.chatbot.repository.EventApplicationRepository;
 import com.shinhancard.chatbot.repository.EventManageRepository;
 import com.shinhancard.chatbot.repository.EventTargetRepository;
@@ -52,6 +54,7 @@ public class EventApplicationService {
 	private final EventApplicationRepository eventApplicationRepository;
 	private final EventManageRepository eventManageRepository;
 	private final EventTargetRepository eventTargetRepository;
+	private final ApplyManageRepository applyManageRepository;
 
 	public List<EventApplication> getEvents() {
 		List<EventApplication> eventApplications = eventApplicationRepository.findAll();
@@ -65,11 +68,12 @@ public class EventApplicationService {
 		return eventApplication;
 	}
 
-
 	public EventApplicationResponse applicationEvent(EventApplicationRequest eventApplicationRequest)
 			throws EventException {
 
-		EventApplication eventApplication = getEventApplicationWithConcurrencyControl(eventApplicationRequest);
+		EventApplication eventApplication = getEventApplication(eventApplicationRequest);
+		eventApplicationRepository.save(eventApplication);
+
 		return getEventApplicationResponse(eventApplication);
 	}
 
@@ -81,59 +85,58 @@ public class EventApplicationService {
 	public void deleteEvent(String id) {
 		eventApplicationRepository.deleteById(id);
 	}
-	
-	
-	
-	@Transactional(value = "transactionManager",isolation = Isolation.READ_COMMITTED)
-//	@Retryable(value = {MongoCommandException.class, MongoException.class}, backoff = @Backoff(delay = 10), maxAttempts = 10)
-	public EventApplication getEventApplicationWithConcurrencyControl(EventApplicationRequest eventApplicationRequest)
-			throws EventException {
-		EventApplication eventApplication = getEventApplication(eventApplicationRequest);
-		eventApplicationRepository.save(eventApplication);
 
-		return eventApplication;
-	}
-
-	@Transactional(value = "transactionManager",isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
+	@Transactional(value = "transactionManager", isolation = Isolation.READ_COMMITTED, readOnly = true, propagation = Propagation.MANDATORY)
 	public EventApplication getEventApplication(EventApplicationRequest eventApplicationRequest) throws EventException {
 		EventManage eventManage = eventManageRepository.findOneByEventId(eventApplicationRequest.getEventId());
-		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
-		EventApplication eventApplication = new EventApplication();
-
-		canApplyCheck(eventApplicationLog, eventManage, eventApplicationRequest);
-		if (isCheckApplicationLog(eventManage)) {
-			eventApplicationLog = getApplicationLog(eventManage, eventApplicationRequest);
-		}
-		eventApplication = setEventApplication(eventApplicationLog, eventManage, eventApplicationRequest);
-
-		return eventApplication;
+		EventApplicationLog eventApplicationLog = getApplicationLog(eventManage, eventApplicationRequest);
+		return setEventApplication(eventApplicationLog, eventApplicationRequest);
 	}
 
+	public EventApplicationLog getApplicationLog(EventManage eventManage,
+			EventApplicationRequest eventApplicationRequest) throws EventException {
+		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
+		
+		checkDefault(eventApplicationLog, eventManage, eventApplicationRequest);
+		ApplyManage applyManage = applyManageRepository.findOneByEventId(eventApplicationRequest.getEventId());
+				
+		if (isNeedCheckOther(eventManage)) {
+			checkOther(eventApplicationLog, eventManage, eventApplicationRequest);
+		}
+		
+//		applyManageRepository.save(applyManage);
+		if (isNeedSetApplicationLog(eventManage)) {
+			eventApplicationLog = setApplicationLog(eventManage, eventApplicationRequest);
+		}
+		
+
+		return eventApplicationLog;
+
+	}
+	
+	public void increaseDefaultCountApplyManage(String eventId) {
+		
+	}
 
 	public void canApplyCheck(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
-		if (eventManage == null) {
-			throw new EventException(ResultCode.FAILED_CANT_FIND_EVENTID);
-		}
-		
-		if (isCheckFindAll(eventManage)) {
-			canApplyCheckFindAll(eventApplicationLog, eventManage, eventApplicationRequest);
-		} else {
-			canApplyCheckFindSome(eventApplicationLog, eventManage, eventApplicationRequest);
+		checkDefault(eventApplicationLog, eventManage, eventApplicationRequest);
+		if (isNeedCheckOther(eventManage)) {
+			checkOther(eventApplicationLog, eventManage, eventApplicationRequest);
 		}
 	}
 
-	public Boolean isCheckApplicationLog(EventManage eventManage) {
+	public Boolean isNeedSetApplicationLog(EventManage eventManage) {
 		Boolean result = false;
 		if (eventManage.getProperties().contains(PropertyCode.OVERLAP)
 				|| eventManage.getProperties().contains(PropertyCode.REWARD)) {
 			result = true;
 		}
 		return result;
-		
+
 	}
 
-	public Boolean isCheckFindAll(EventManage eventManage) {
+	public Boolean isNeedCheckOther(EventManage eventManage) {
 		Boolean result = true;
 		Integer limitApplication = eventManage.getDefaultInfo().getLimitApplication();
 		Integer limitClnn = eventManage.getDefaultInfo().getLimitClnn();
@@ -146,25 +149,8 @@ public class EventApplicationService {
 		return result;
 	}
 
-	
-	public void canApplyCheckFindAll(EventApplicationLog eventApplicationLog, EventManage eventManage,
+	public void checkOther(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
-
-		if (!canApplyDate(eventManage, eventApplicationLog)) {
-			throw new EventException(ResultCode.FAILED_NO_APPLY_DATE);
-		}
-
-		if (!canApplyTarget(eventManage, eventApplicationRequest)) {
-			throw new EventException(ResultCode.FAILED_NOT_TARGET);
-		}
-
-		if (!canApplyQuiz(eventManage, eventApplicationRequest)) {
-			throw new EventException(ResultCode.FAILED_NO_CORRECT_ANSWER);
-		}
-
-		if (!canApplyOverLap(eventManage, eventApplicationRequest, eventApplicationLog)) {
-			throw new EventException(ResultCode.FAILED_OVERLAP_VALIDATE);
-		}
 
 		if (!canApplyTotalLimit(eventManage)) {
 			throw new EventException(ResultCode.FAILED_APPLY_OVER);
@@ -175,9 +161,11 @@ public class EventApplicationService {
 		}
 	}
 
-	
-	public void canApplyCheckFindSome(EventApplicationLog eventApplicationLog, EventManage eventManage,
+	public void checkDefault(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
+		if (eventManage == null) {
+			throw new EventException(ResultCode.FAILED_CANT_FIND_EVENTID);
+		}
 
 		if (!canApplyDate(eventManage, eventApplicationLog)) {
 			throw new EventException(ResultCode.FAILED_NO_APPLY_DATE);
@@ -197,7 +185,6 @@ public class EventApplicationService {
 
 	}
 
-	
 	public Boolean canApplyTotalLimit(EventManage eventManage) {
 		Boolean result = true;
 		String eventId = eventManage.getEventId();
@@ -222,9 +209,7 @@ public class EventApplicationService {
 		return result;
 	}
 
-
-	
-	public EventApplicationLog getApplicationLog(EventManage eventManage,
+	public EventApplicationLog setApplicationLog(EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) {
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
 		if (eventManage.getProperties().contains(PropertyCode.OVERLAP)) {
@@ -237,8 +222,7 @@ public class EventApplicationService {
 		return eventApplicationLog;
 	}
 
-	
-	public EventApplication setEventApplication(EventApplicationLog eventApplicationLog, EventManage eventManage,
+	public EventApplication setEventApplication(EventApplicationLog eventApplicationLog,
 			EventApplicationRequest eventApplicationRequest) {
 
 		String eventId = eventApplicationRequest.getEventId();
@@ -300,7 +284,6 @@ public class EventApplicationService {
 		return result;
 	}
 
-	
 	public Boolean canApplyTarget(EventManage eventManage, EventApplicationRequest eventApplicationRequest) {
 		Boolean result = true;
 		if (eventManage.getProperties().contains(PropertyCode.TARGET)) {
@@ -525,7 +508,6 @@ public class EventApplicationService {
 		return localDateTime.withDayOfYear(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 	}
 
-	
 	public Integer getOverLapOrder(EventApplicationRequest eventApplicationRequest) {
 		Integer result = 1;
 
@@ -554,7 +536,7 @@ public class EventApplicationService {
 		}
 		return result;
 	}
-	
+
 	public String getReward(EventManage eventManage, EventApplicationRequest eventApplicationRequest) {
 		String result = "";
 		Reward reward = eventManage.getReward();
@@ -567,7 +549,6 @@ public class EventApplicationService {
 		return result;
 	}
 
-	
 	public String getRewardName(Reward reward, List<EventApplication> eventApplications) {
 		String rewardName = "";
 		Map<String, Integer> manageRewardLimit = setManageRewardLimit(reward, eventApplications);

@@ -18,16 +18,16 @@ public class ApplyManage {
 	
 	private Integer limitClnn;
 	private Integer limitApplication;
-	private Integer ClnnCount;
-	private Integer ApplicationCount;
+	private Integer clnnCount;
+	private Integer applicationCount;
 	
 	private Boolean isRewardProperty;
 	private RewardCode type;
 	private List<RewardHistory> rewardHistories = new ArrayList<RewardHistory>();
 	
 	public ApplyManage() {
-		this.ApplicationCount = 0;
-		this.ClnnCount = 0;
+		this.applicationCount = 0;
+		this.clnnCount = 0;
 		this.limitApplication = 0;
 		this.limitClnn = 0;
 	}
