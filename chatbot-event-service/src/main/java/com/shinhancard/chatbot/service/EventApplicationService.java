@@ -97,8 +97,9 @@ public class EventApplicationService {
 			EventApplicationRequest eventApplicationRequest) throws EventException {
 		EventApplicationLog eventApplicationLog = new EventApplicationLog(eventApplicationRequest);
 		
+		ApplyManage applyManage = applyManageRepository.incDefaultByEventId(eventApplicationRequest.getEventId());
 		checkDefault(eventApplicationLog, eventManage, eventApplicationRequest);
-		ApplyManage applyManage = applyManageRepository.findOneByEventId(eventApplicationRequest.getEventId());
+
 				
 		if (isNeedCheckOther(eventManage)) {
 			checkOther(eventApplicationLog, eventManage, eventApplicationRequest);

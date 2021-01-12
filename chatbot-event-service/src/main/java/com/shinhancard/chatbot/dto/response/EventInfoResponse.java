@@ -10,11 +10,6 @@ import lombok.Data;
 
 @Data
 public class EventInfoResponse {
-
-	// 결과메세지	
-//	private ResultCodeMessage resultCodeMessage = new ResultCodeMessage();
-
-	private String eventId;
 	private String clnn;
 	private String channel;
 	private TimeClassificationCode timeClassification;

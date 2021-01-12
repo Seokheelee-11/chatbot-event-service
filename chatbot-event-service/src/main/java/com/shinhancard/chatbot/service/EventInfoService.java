@@ -43,7 +43,7 @@ public class EventInfoService {
 	public EventInfoResponse mappingEventInfo(EventInfoRequest eventInfoRequest) throws EventException {
 		EventInfoResponse eventInfoResponse = new EventInfoResponse();
 		
-		String eventId = eventInfoRequest.getEventId();
+		List<String> eventIds = eventInfoRequest.getEventId();
 		String clnn = eventInfoRequest.getClnn();
 		String channel = eventInfoRequest.getChannel();
 		TimeClassificationCode timeClassification = eventInfoRequest.getTimeClassification();
@@ -53,10 +53,12 @@ public class EventInfoService {
 		eventInfoResponse.setTimeClassification(timeClassification);
 		eventInfoResponse.setChannel(channel);
 
-		if (StringUtils.isEmpty(eventId)) {
+		if (CollectionUtils.isEmpty(eventIds)) {
 			eventManages = eventManageRepository.findAll();
 		} else {
-			eventManages = eventManageRepository.findAllByEventId(eventId);
+			for(String eventId : eventIds) {
+				eventManages.add(eventManageRepository.findOneByEventId(eventId));	
+			}
 		}
 
 		for (EventManage eventManage : eventManages) {
@@ -91,7 +93,7 @@ public class EventInfoService {
 	}
 
 	public Boolean isTarget(EventManage eventManage, String clnn) {
-		if (eventManage.getTarget().getIsProperty()) {
+		if (eventManage.getTarget().getIsProperty() && !StringUtils.isEmpty(clnn)) {
 			String targetName = eventManage.getTarget().getTargetName();
 			String nonTargetName = eventManage.getTarget().getNonTargetName();
 

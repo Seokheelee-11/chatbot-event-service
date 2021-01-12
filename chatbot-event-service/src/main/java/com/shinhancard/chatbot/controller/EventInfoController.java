@@ -1,7 +1,5 @@
 package com.shinhancard.chatbot.controller;
 
-import javax.validation.Valid;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +23,7 @@ public class EventInfoController {
 
 	@PostMapping("/totalEvent")
 	public EventInfoResponse getEventInfo(
-			@RequestBody @Valid EventInfoRequest eventInfoRequest) throws EventException {
+			@RequestBody EventInfoRequest eventInfoRequest) throws EventException {
 		return eventInfoService.getEventInfo(eventInfoRequest);
 	}
 }
