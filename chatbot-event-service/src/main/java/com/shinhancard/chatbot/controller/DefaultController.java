@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultController {
 
 
-	private final EventApplicationService eventApplicationService;
+	private final EventApplicationService ;
 	
 	@GetMapping
 	public String defaultApi() {

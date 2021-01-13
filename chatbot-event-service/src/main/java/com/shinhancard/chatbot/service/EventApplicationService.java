@@ -73,7 +73,6 @@ public class EventApplicationService {
 
 		EventApplication eventApplication = getEventApplication(eventApplicationRequest);
 		eventApplicationRepository.save(eventApplication);
-
 		return getEventApplicationResponse(eventApplication);
 	}
 
@@ -99,7 +98,7 @@ public class EventApplicationService {
 		
 		ApplyManage applyManage = applyManageRepository.incDefaultByEventId(eventApplicationRequest.getEventId());
 		checkDefault(eventApplicationLog, eventManage, eventApplicationRequest);
-
+		
 				
 		if (isNeedCheckOther(eventManage)) {
 			checkOther(eventApplicationLog, eventManage, eventApplicationRequest);
@@ -165,6 +164,7 @@ public class EventApplicationService {
 	public void checkDefault(EventApplicationLog eventApplicationLog, EventManage eventManage,
 			EventApplicationRequest eventApplicationRequest) throws EventException {
 		if (eventManage == null) {
+			
 			throw new EventException(ResultCode.FAILED_CANT_FIND_EVENTID);
 		}
 

@@ -40,7 +40,7 @@ public class GlobalControllerExceptionHandler implements ResponseBodyAdvice<Obje
 		if (body instanceof ResultCodeMessage) {
 			return body;
 		} else {
-			return new ResultCodeMessage(body);
+			return new ResultCodeMessage(body, ResultCode.SUCCESS);
 		}
 	}
 }

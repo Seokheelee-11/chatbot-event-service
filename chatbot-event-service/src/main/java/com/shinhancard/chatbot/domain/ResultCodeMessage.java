@@ -12,17 +12,18 @@ public class ResultCodeMessage {
 	private String resultMessage;
 	private Object result;
 	
-	public ResultCodeMessage(ResultCode resultCode) {
-		this.resultCode = resultCode;
-		this.resultMessage = resultCode.getResultMessage();
-	}
-	
-	public ResultCodeMessage(Object result) {
+	public ResultCodeMessage(Object result, ResultCode resultCode) {
 		this.resultCode = ResultCode.SUCCESS;
 		this.resultMessage = resultCode.getResultMessage();
 		this.result = result;
 	}
 	
+	public ResultCodeMessage(ResultCode resultCode) {
+		this.resultCode = resultCode;
+		this.resultMessage = resultCode.getResultMessage();
+	}
+	
+
 	
 	public ResultCodeMessage() {
 		this.resultCode = ResultCode.SUCCESS;

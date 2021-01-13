@@ -35,7 +35,6 @@ public class ApplyManageService {
 		rewardManage.setLimitClnn(eventManage.getDefaultInfo().getLimitClnn());
 		rewardManage.setIsRewardProperty(eventManage.getReward().getIsProperty());
 		return rewardManage;
-		
 	}
 
 	public List<RewardHistory> getRewardHistories(EventManage eventManage) {

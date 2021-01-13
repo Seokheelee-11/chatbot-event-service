@@ -76,15 +76,12 @@ public class EventManageService {
 		LocalDateTime endDate = eventManage.getDefaultInfo().getEndDate();
 		EventManageResponse eventManageResponse = new EventManageResponse();
 		if (startDate.isBefore(endDate) && checkRewardConfig(eventManage)) {
-			if (eventManage.getReward().getIsProperty()) {
-				rewardManageService.registApplyManage(eventManage);
-			}
+			rewardManageService.registApplyManage(eventManage);
 			eventManageRepository.save(eventManage);
 			eventManageResponse = modelMapper.map(eventManage, EventManageResponse.class);
 		} else {
 			throw new EventException(ResultCode.FAILED);
 		}
-
 		return eventManageResponse;
 	}
 
