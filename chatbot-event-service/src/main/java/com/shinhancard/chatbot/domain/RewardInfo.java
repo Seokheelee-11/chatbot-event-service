@@ -13,4 +13,5 @@ public class RewardInfo {
 	private Integer limit;
 	private String message;
 	private Map<String,String> infoes = new HashMap<String, String>();	
+	
 }

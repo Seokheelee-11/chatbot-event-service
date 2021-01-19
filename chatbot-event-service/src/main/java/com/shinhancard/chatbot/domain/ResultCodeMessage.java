@@ -14,7 +14,7 @@ public class ResultCodeMessage {
 	
 	public ResultCodeMessage(Object result, ResultCode resultCode) {
 		this.resultCode = ResultCode.SUCCESS;
-		this.resultMessage = resultCode.getResultMessage();
+		this.resultMessage = this.resultCode.getResultMessage();
 		this.result = result;
 	}
 	
