@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.shinhancard.chatbot</groupId>
 	<artifactId>chatbot-event-service</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.9-SNAPSHOT</version>
 	<name>chatbot-event-service</name>
 	<description>ChatbotEventService</description>
 
@@ -55,6 +55,22 @@
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>2.3.8</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.retry</groupId>
+			<artifactId>spring-retry</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
 		<dependency>

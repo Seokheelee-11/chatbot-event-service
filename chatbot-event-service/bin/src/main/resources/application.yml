@@ -10,10 +10,37 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+#      host: localhost
+#      port: 27017
+      uri: mongodb://localhost:27017
+      database: chatbot
+#      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+   
+
+
      
 logging:
   level:
     root: info
 
-    
+---
+spring:
+ profiles: peer1
+# data:
+#    mongodb:
+#      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+
+server:
+  port: 8080
+
+  
+---
+
+spring:
+ profiles: peer2
+# data:
+#    mongodb:
+#      uri: mongodb+srv://chatbot:dbwj123!@chatbot.v13hn.mongodb.net/test?retryWrites=true&w=majority
+
+server:
+  port: 8680
